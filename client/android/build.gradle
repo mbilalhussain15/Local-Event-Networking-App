@@ -1,0 +1,69 @@
+buildscript {
+    ext {
+        buildToolsVersion = "34.0.0" // Use the latest stable version
+        minSdkVersion = 24
+        compileSdkVersion = 34 // Align with the latest stable version
+        targetSdkVersion = 34
+        ndkVersion = "26.1.10909125"
+        kotlinVersion = "1.9.24"
+    }
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // Specify compatible Gradle plugin versions
+        classpath("com.android.tools.build:gradle:8.2.0")
+        // classpath("com.android.tools.build:gradle:8.1.2") 
+        classpath("com.facebook.react:react-native-gradle-plugin")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.24")
+    }
+}
+
+// Apply React Native's plugin
+apply plugin: "com.facebook.react.rootproject"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// buildscript {
+//     ext {
+//         buildToolsVersion = "34.0.0"
+//         minSdkVersion = 24
+//         compileSdkVersion = 34
+//         targetSdkVersion = 34
+//         ndkVersion = "26.1.10909125"
+//         kotlinVersion = "1.9.24"
+//     }
+//     repositories {
+//         google()
+//         mavenCentral()
+//     }
+//     dependencies {
+//         classpath("com.android.tools.build:gradle")
+//         classpath("com.facebook.react:react-native-gradle-plugin")
+//         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
+//     }
+// }
+
+// apply plugin: "com.facebook.react.rootproject"
