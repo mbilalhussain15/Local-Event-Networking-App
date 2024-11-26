@@ -19,34 +19,34 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Login route
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
   try {
     const user = await userManager.authenticateUser(email, password);
+    
     const token = TokenManager.generateToken({ email: user.email });
+
     res.status(200).json({ message: 'Login successful.', token });
   } catch (error) {
     res.status(401).json({ message: error.message });
   }
 });
 
-// Protected route example
 router.get('/protected', (req, res) => {
-  const authHeader = req.headers.authorization;
+  const { token } = req.body; 
 
-  if (!authHeader) {
-    return res.status(401).json({ message: 'Authorization header is missing.' });
+  if (!token) {
+    return res.status(401).json({ message: 'Token is missing.' });
   }
 
-  const token = authHeader.split(' ')[1];
   try {
     const decoded = TokenManager.verifyToken(token);
+
     res.status(200).json({ message: `Welcome ${decoded.email}!`, data: decoded });
   } catch (error) {
     res.status(401).json({ message: error.message });
   }
 });
 
-export default router;
+export default router; 
