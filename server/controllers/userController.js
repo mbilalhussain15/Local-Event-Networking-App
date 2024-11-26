@@ -1,8 +1,7 @@
-// controllers/userController.js
 import User from '../models/registration.js'; // Import User model
+import bcrypt from 'bcryptjs';  // Import bcryptjs for password hashing
 
 export class UserManager {
-  // Register user in MongoDB
   async registerUser(firstName, lastName, email, password, profileImage) {
     const userExists = await User.findOne({ email });
 
@@ -10,11 +9,13 @@ export class UserManager {
       throw new Error('User with this email already exists.');
     }
 
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const newUser = new User({
       firstName,
       lastName,
       email,
-      password,
+      password: hashedPassword,  
       profileImage,
     });
 
@@ -26,7 +27,14 @@ export class UserManager {
   async authenticateUser(email, password) {
     const user = await User.findOne({ email });
 
-    if (!user || user.password !== password) {
+    if (!user) {
+      throw new Error('Invalid email or password.');
+    }
+
+    // Compare the password with the hashed password stored in the database
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
       throw new Error('Invalid email or password.');
     }
 
