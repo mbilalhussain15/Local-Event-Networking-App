@@ -72,21 +72,21 @@ export const simulatePayment = async (req, res) => {
 };
 
 
+
+
+
 export const getPaymentByUserId = async (req, res) => {
     try {
         const { userId } = req.params;
 
-        // Find all payments made by the user
+        // Find payments by userId
         const payments = await Payment.find({ userId }).populate('ticketId eventId');
 
         if (payments.length === 0) {
             return res.status(404).json({ error: 'No payments found for this user' });
         }
 
-        res.status(200).json({
-            success: true,
-            payments,
-        });
+        res.status(200).json({ success: true, payments });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -96,17 +96,14 @@ export const getPaymentByTransactionId = async (req, res) => {
     try {
         const { transactionId } = req.params;
 
-        // Find the payment by transaction ID
+        // Find the payment by transactionId
         const payment = await Payment.findOne({ transactionId }).populate('ticketId eventId');
 
         if (!payment) {
             return res.status(404).json({ error: 'Payment not found' });
         }
 
-        res.status(200).json({
-            success: true,
-            payment,
-        });
+        res.status(200).json({ success: true, payment });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
