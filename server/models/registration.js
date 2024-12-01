@@ -1,4 +1,3 @@
-// models/User.js
 import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
@@ -7,10 +6,10 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   isActive: { type: Boolean, default: true },
-  isVerified: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
-  profileImage: { type: String }, // Can store image URL or path
+  profileImage: { type: String },
+  language: { type: String, default: 'English' }  // New language field with default value
 });
 
 const User = mongoose.model('User', userSchema);

@@ -1,12 +1,28 @@
 import express from 'express';
-import { UserController } from '../controllers/userController.js';
+import { 
+  deleteUser, 
+  getUsers, 
+  getUser,
+  login, 
+  logout, 
+  protectedRoute, 
+  register,
+  updateUserLanguage, 
+  updateUser 
+} from '../controllers/userController.js';
+import { verifyToken } from '../middleware/verifyToken.js'
 
 const router = express.Router();
-const userController = new UserController();
 
-router.post('/register', userController.register);
-router.post('/login', userController.login);
-router.post('/logout', userController.logout);
-router.get('/protected', userController.protectedRoute);
+router.post('/register', register);
+router.post('/login', login);
+router.post('/logout', logout);
+router.get('/protected', protectedRoute);
+
+router.get('/users',verifyToken, getUsers);            
+router.get('/users/:id',verifyToken, getUser);     
+router.put('/users/:id',verifyToken, updateUser);      
+router.delete('/users/:id',verifyToken, deleteUser);
+router.put('/users/:id/language', verifyToken, updateUserLanguage);
 
 export default router;
