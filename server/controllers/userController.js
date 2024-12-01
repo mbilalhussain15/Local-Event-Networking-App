@@ -4,7 +4,7 @@ import { TokenManager } from '../utils/jwtTokenManager.js';
 
 
 export const register = async (req, res) => {
-  const { firstName, lastName, email, password, profileImage, language = 'English', isActive = true } = req.body;
+  const { firstName, lastName, email, password, profileImage, language = 'English', isActive = true, phone } = req.body;
 
   try {
     const userExists = await User.findOne({ email });
@@ -19,10 +19,11 @@ export const register = async (req, res) => {
       firstName,
       lastName,
       email,
-      password: hashedPassword,  
+      password: hashedPassword,
       profileImage,
-      isActive,  
+      isActive,
       language,  // Set default language as English or user-provided
+      phone, // Use phone instead of mobileNumber
     });
 
     await newUser.save();
@@ -34,40 +35,7 @@ export const register = async (req, res) => {
 };
 
 
-  
-  // export const login = async (req, res) => {
-  //   const { email, password } = req.body;
-  
-  //   try {
-  //     const user = await User.findOne({ email });
-  
-  //     if (!user) {
-  //       throw new Error('Invalid email or password.');
-  //     }
-  
-  //     const isMatch = await bcrypt.compare(password, user.password);
-  
-  //     if (!isMatch) {
-  //       throw new Error('Invalid email or password.');
-  //     }
-  
-  //     // Generate the token
-  //     const token = TokenManager.generateToken({ email: user.email });
-  
-  //     // Set token in cookie
-  //     res.cookie('authToken', token, {
-  //       httpOnly: true,   // Prevent access to the cookie from JavaScript
-  //       secure: process.env.NODE_ENV === 'production', // Only set the cookie over HTTPS in production
-  //       sameSite: 'Strict', // Prevent CSRF attacks
-  //       maxAge: 3600000 // Token expiration (1 hour)
-  //     });
-  
-  //     res.status(200).json({ message: 'Login successful.' });
-  
-  //   } catch (error) {
-  //     res.status(401).json({ message: error.message });
-  //   }
-  // };
+
   export const login = async (req, res) => {
     const { email, password } = req.body;
   
@@ -100,10 +68,6 @@ export const register = async (req, res) => {
     }
   };
   
-  
-  
-
-
   export const logout = (req, res) => {
     res.clearCookie('token', { 
       httpOnly: true, 
@@ -113,14 +77,6 @@ export const register = async (req, res) => {
     res.status(200).json({ message: 'Logout successful. Token removed from client side.' });
   };
   
-  
-  
-  
-  
-  
-  
-
-
 
   export const protectedRoute = (req, res) => {
     const token = req.cookies.authToken;  // Get token from cookie
@@ -138,82 +94,6 @@ export const register = async (req, res) => {
     }
   };
   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // export const login= async (req, res) => {
-  //   const { email, password } = req.body;
-
-  //   try {
-  //     const user = await User.findOne({ email });
-
-  //     if (!user) {
-  //       throw new Error('Invalid email or password.');
-  //     }
-
-  //     const isMatch = await bcrypt.compare(password, user.password);
-
-  //     if (!isMatch) {
-  //       throw new Error('Invalid email or password.');
-  //     }
-
-  //     const token = TokenManager.generateToken({ email: user.email });
-
-  //     res.status(200).json({ message: 'Login successful.', token });
-
-  //   } catch (error) {
-  //     res.status(401).json({ message: error.message });
-  //   }
-  // }
-
-  // export const logout= async(req, res) => {
-  //   const authHeader = req.headers.authorization;
-
-  //   if (!authHeader) {
-  //     return res.status(401).json({ message: 'Authorization token is missing.' });
-  //   }
-
-  //   const token = authHeader.split(' ')[1];
-
-  //   try {
-  //     TokenManager.verifyToken(token);
-  //     res.status(200).json({ message: 'Logout successful. Token removed from client side.' });
-  //   } catch (error) {
-  //     res.status(401).json({ message: 'Invalid or expired token.' });
-  //   }
-  // }
-
-  // export const protectedRoute= async (req, res) => {
-  //   const { token } = req.body;
-
-  //   if (!token) {
-  //     return res.status(401).json({ message: 'Token is missing.' });
-  //   }
-
-  //   try {
-  //     const decoded = TokenManager.verifyToken(token);
-  //     res.status(200).json({ message: `Welcome ${decoded.email}!`, data: decoded });
-
-  //   } catch (error) {
-  //     res.status(401).json({ message: error.message });
-  //   }
-  // }
 
   export const getUsers= async (req, res) => {
     try {
@@ -301,5 +181,38 @@ export const register = async (req, res) => {
     }
   };
   
-
+  export const changePassword = async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+  
+    try {
+      // Extract user information from JWT payload (req.user set by verifyToken middleware)
+      const { userId, email } = req.user;
+  
+      // Find the user by userId (userId is stored in the JWT payload)
+      const user = await User.findById(userId); // or use email if necessary
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found.' });
+      }
+  
+      // Check if the old password matches the hashed password stored in the database
+      const isMatch = await bcrypt.compare(oldPassword, user.password);
+  
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Incorrect old password.' });
+      }
+  
+      // Hash the new password
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+  
+      // Update the password in the database
+      user.password = hashedPassword;
+  
+      await user.save();
+  
+      res.status(200).json({ message: 'Password updated successfully.' });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
 
