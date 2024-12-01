@@ -1,135 +1,113 @@
 import Event from "../models/eventModel.js";  // Correct ES module import
 
-
 export const createEvent = async (req, res) => {
     try {
+        // Destructure the incoming data from the request body
         const {
-            name,
+            eventName,
             description,
             category,
-            location_name,
-            address,
-            city,
-            state,
-            postal_code,
-            country,
-            latitude,
-            longitude,
             max_capacity,
             registration_required,
-            ticket_types,
-            banner_image_url,
             contact_email,
-            tags,
             is_virtual,
             created_by,
             date,
-            userId,  // Ensure userId is passed in the request body
         } = req.body;
 
-        // Generate image URL based on the file upload path
-        const imageUrl = req.file ? `/uploads/users/${userId}/events/${req.params.eventId}/${req.file.filename}` : null;
+        const userId = "1234"; // Ideally, fetch dynamically
 
-        const eventSave = new Event ({
-            name,
+        // Create event document
+        const eventSave = new Event({
+            eventName,
             description,
             category,
-            location_name,
-            address,
-            city,
-            state,
-            postal_code,
-            country,
-            latitude,
-            longitude,
             max_capacity,
             registration_required,
-            ticket_types: JSON.parse(ticket_types), // Parse ticket types if sent as JSON string
-            banner_image_url,
             contact_email,
-            tags: tags ? JSON.parse(tags) : [], // Parse tags if sent as JSON string
             is_virtual,
             created_by,
-            imageUrl,  // Store the local image URL in DB
             date
         });
 
-        await eventSave.save();
-        res.status(201).json(eventSave);
+        // Save event to DB
+        const savedEvent = await eventSave.save();
+
+        // Prepare the response with success message and the full event details
+        res.status(201).json({
+            success: true,
+            message: "Event created successfully",
+            event: savedEvent
+        });
+
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        // Handle errors
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
     }
 };
 
+
 export const updateEvent = async (req, res) => {
     try {
+        // Destructure the incoming data from the request body
         const {
-            name,
+            eventName,
             description,
             category,
-            location_name,
-            address,
-            city,
-            state,
-            postal_code,
-            country,
-            latitude,
-            longitude,
             max_capacity,
             registration_required,
-            ticket_types,
-            banner_image_url,
             contact_email,
-            tags,
             is_virtual,
             created_by,
             date
         } = req.body;
+        
+        const userId = "1234"; // Ideally, fetch dynamically
 
-        const userId = req.body.userId || req.params.userId;
-        const eventId = req.params.eventId;
+        // Generate the event image URL if an image file is uploaded
+        const eventImage = req.file
+            ? `http://localhost:4000/uploads/${userId}/events/${req.params.id}/${req.file.filename}`
+            : null;
 
-        // Generate new image URL if a new image is uploaded
-        const imageUrl = req.file ? `/uploads/users/${userId}/events/${eventId}/${req.file.filename}` : undefined;
-
+        // Prepare the updated event data
         const updatedData = {
-            name,
+            eventName,
             description,
             category,
-            location_name,
-            address,
-            city,
-            state,
-            postal_code,
-            country,
-            latitude,
-            longitude,
             max_capacity,
             registration_required,
-            ticket_types: ticket_types ? JSON.parse(ticket_types) : undefined,
-            banner_image_url,
             contact_email,
-            tags: tags ? JSON.parse(tags) : undefined,
             is_virtual,
             created_by,
-            imageUrl,
+            eventImage,
             date
         };
 
-        // Remove undefined fields to avoid overwriting
+        // Remove any fields that are undefined or not provided
         Object.keys(updatedData).forEach((key) => {
             if (updatedData[key] === undefined) {
                 delete updatedData[key];
             }
         });
 
+        // Find the event by its ID and update the fields
         const event = await Event.findByIdAndUpdate(req.params.id, updatedData, { new: true });
 
+        // If the event is not found, return a 404 error
         if (!event) {
             return res.status(404).json({ message: "Event not found" });
         }
 
-        res.status(200).json(event);
+        // Return the updated event data in the response
+        res.status(200).json({
+            success: true,
+            message: "Event updated successfully",
+            event: event
+        });
+
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
