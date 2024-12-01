@@ -36,38 +36,43 @@ export const register = async (req, res) => {
 
 
 
-  export const login = async (req, res) => {
-    const { email, password } = req.body;
-  
-    try {
-      const user = await User.findOne({ email });
-  
-      if (!user) {
-        throw new Error('Invalid email or password.');
-      }
-  
-      const isMatch = await bcrypt.compare(password, user.password);
-  
-      if (!isMatch) {
-        throw new Error('Invalid email or password.');
-      }
-  
-      const token = TokenManager.generateToken({ email: user.email });
-  
-      // Set cookie named 'token' with 1-hour expiration
-      res.cookie('token', token, { 
-        httpOnly: true, 
-        maxAge: 60 * 60 * 1000,  // 1 hour
-        path: '/',  
-      });
-  
-      res.status(200).json({ message: 'Login successful.' });
-  
-    } catch (error) {
-      res.status(401).json({ message: error.message });
+export const login = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    // Step 1: Find the user by email
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid email or password.' });
     }
-  };
-  
+
+    // Step 2: Compare the input password with the stored hashed password
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid email or password.' });
+    }
+
+    // Step 3: Generate a JWT token with user information (you may want to use user ID for better security)
+    const token = TokenManager.generateToken({ userId: user._id, email: user.email });
+
+    // Step 4: Set cookie with token, secure only in HTTPS and HttpOnly for security
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 60 * 60 * 1000,  // 1 hour expiration
+      path: '/',
+    });
+
+    // Step 5: Respond with success
+    res.status(200).json({ message: 'Login successful.' });
+
+  } catch (error) {
+    console.error(error);  // Log error for debugging
+    res.status(401).json({ message: 'Server error, please try again later.' });
+  }
+};
   export const logout = (req, res) => {
     res.clearCookie('token', { 
       httpOnly: true, 
@@ -181,38 +186,60 @@ export const register = async (req, res) => {
     }
   };
   
-  export const changePassword = async (req, res) => {
-    const { oldPassword, newPassword } = req.body;
+  export const updatePassword = async (req, res) => {
+    const { oldPassword, newPassword, confirmPassword } = req.body;
+    const { userId } = req.params; // Assuming the userId is sent in the URL params
   
     try {
-      // Extract user information from JWT payload (req.user set by verifyToken middleware)
-      const { userId, email } = req.user;
+      // Step 1: Validate input
+      if (!oldPassword || !newPassword || !confirmPassword) {
+        return res.status(400).json({ message: 'All fields are required.' });
+      }
   
-      // Find the user by userId (userId is stored in the JWT payload)
-      const user = await User.findById(userId); // or use email if necessary
+      if (newPassword !== confirmPassword) {
+        return res.status(400).json({ message: 'New password and confirm password do not match.' });
+      }
+  
+      // Step 2: Find the user by userId
+      const user = await User.findById(userId);
   
       if (!user) {
         return res.status(404).json({ message: 'User not found.' });
       }
   
-      // Check if the old password matches the hashed password stored in the database
+      // Step 3: Check if the old password is correct
       const isMatch = await bcrypt.compare(oldPassword, user.password);
   
       if (!isMatch) {
-        return res.status(400).json({ message: 'Incorrect old password.' });
+        return res.status(400).json({ message: 'Old password is incorrect.' });
       }
   
-      // Hash the new password
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      // Step 4: Hash the new password
+      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
   
-      // Update the password in the database
-      user.password = hashedPassword;
+      // Step 5: Update the user's password in the database
+      user.password = hashedNewPassword; // Update the password field with the new hashed password
   
-      await user.save();
+      // **Important:** Ensure you're calling .save() to persist changes
+      await user.save();  // This will save the updated user with the new password
   
-      res.status(200).json({ message: 'Password updated successfully.' });
+      // Step 6: Generate a new token (optional but can be useful)
+      const token = TokenManager.generateToken({ userId: user._id, email: user.email });
+  
+      // Set the token in cookies (or you can return it in the response if needed)
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',  // Ensures cookies are sent only over HTTPS in production
+        maxAge: 60 * 60 * 1000,  // 1 hour expiration
+        path: '/',  // Make the cookie available across the entire domain
+      });
+  
+      // Step 7: Respond with success
+      res.status(200).json({ message: 'Password updated successfully. Please log in again with the new password.' });
+  
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      console.error(error);  // Log error for debugging
+      res.status(400).json({ message: error.message });
     }
   };
 
