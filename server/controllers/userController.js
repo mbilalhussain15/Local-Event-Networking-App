@@ -1,6 +1,7 @@
 import User from '../models/registration.js';
 import bcrypt from 'bcryptjs';
 import { TokenManager } from '../utils/jwtTokenManager.js'; 
+import { sendNotificationToUser } from './notificationController.js';
 
 
 export const register = async (req, res) => {
@@ -27,6 +28,7 @@ export const register = async (req, res) => {
     });
 
     await newUser.save();
+    sendNotificationToUser(newUser._id, 'Welcome to the app!');  // Send a welcome notification
     res.status(201).json({ message: 'User registered successfully.', user: newUser });
 
   } catch (error) {
