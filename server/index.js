@@ -1,20 +1,31 @@
 import dotenv from 'dotenv';
-dotenv.config();  // Load environment variables from .env file
+import express from 'express';
+import cors from 'cors';  
+import helmet from 'helmet';  
+import morgan from 'morgan'; 
+import connectDB from './utils/mongoDB.js';
+import userRoutes from './routes/userRoutes.js';
+import cookieParser from 'cookie-parser';
 
-import express from 'express';  // Import express
-import connectDB from './utils/mongoDB.js';  // Import MongoDB connection utility
-import userRoutes from './routes/userRoutes.js';  // Import routes from userRoutes.js
+dotenv.config(); 
 
-const app = express();  // Initialize Express app
+const app = express(); 
 
-app.use(express.json());  // Parse JSON request bodies
+app.use(express.json()); 
+app.use(cors()); 
+app.use(helmet()); 
+app.use(morgan('dev')); 
 
+app.use(cookieParser()); 
 connectDB();
+app.use('/api', userRoutes);
 
-app.use('/api/users', userRoutes);  // Use userRoutes for API requests
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Something went wrong!' });
+});
 
-const PORT = process.env.PORT || 4000;  // Get the port from the .env file or default to 4000
-
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
