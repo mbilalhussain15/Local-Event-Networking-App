@@ -1,8 +1,12 @@
-import User from '../models/registration.js'; // Import User model
-import bcrypt from 'bcryptjs';  // Import bcryptjs for password hashing
+import User from '../models/registration.js';
+import bcrypt from 'bcryptjs';
+import { TokenManager } from '../utils/jwtTokenManager.js'; 
 
-export class UserManager {
-  async registerUser(firstName, lastName, email, password, profileImage) {
+
+export const register = async (req, res) => {
+  const { firstName, lastName, email, password, profileImage, language = 'English', isActive = true } = req.body;
+
+  try {
     const userExists = await User.findOne({ email });
 
     if (userExists) {
@@ -17,32 +21,285 @@ export class UserManager {
       email,
       password: hashedPassword,  
       profileImage,
+      isActive,  
+      language,  // Set default language as English or user-provided
     });
 
     await newUser.save();
-    return newUser;
+    res.status(201).json({ message: 'User registered successfully.', user: newUser });
+
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
+};
 
-  // Authenticate user
-  async authenticateUser(email, password) {
-    const user = await User.findOne({ email });
 
-    if (!user) {
-      throw new Error('Invalid email or password.');
+  
+  // export const login = async (req, res) => {
+  //   const { email, password } = req.body;
+  
+  //   try {
+  //     const user = await User.findOne({ email });
+  
+  //     if (!user) {
+  //       throw new Error('Invalid email or password.');
+  //     }
+  
+  //     const isMatch = await bcrypt.compare(password, user.password);
+  
+  //     if (!isMatch) {
+  //       throw new Error('Invalid email or password.');
+  //     }
+  
+  //     // Generate the token
+  //     const token = TokenManager.generateToken({ email: user.email });
+  
+  //     // Set token in cookie
+  //     res.cookie('authToken', token, {
+  //       httpOnly: true,   // Prevent access to the cookie from JavaScript
+  //       secure: process.env.NODE_ENV === 'production', // Only set the cookie over HTTPS in production
+  //       sameSite: 'Strict', // Prevent CSRF attacks
+  //       maxAge: 3600000 // Token expiration (1 hour)
+  //     });
+  
+  //     res.status(200).json({ message: 'Login successful.' });
+  
+  //   } catch (error) {
+  //     res.status(401).json({ message: error.message });
+  //   }
+  // };
+  export const login = async (req, res) => {
+    const { email, password } = req.body;
+  
+    try {
+      const user = await User.findOne({ email });
+  
+      if (!user) {
+        throw new Error('Invalid email or password.');
+      }
+  
+      const isMatch = await bcrypt.compare(password, user.password);
+  
+      if (!isMatch) {
+        throw new Error('Invalid email or password.');
+      }
+  
+      const token = TokenManager.generateToken({ email: user.email });
+  
+      // Set cookie named 'token' with 1-hour expiration
+      res.cookie('token', token, { 
+        httpOnly: true, 
+        maxAge: 60 * 60 * 1000,  // 1 hour
+        path: '/',  
+      });
+  
+      res.status(200).json({ message: 'Login successful.' });
+  
+    } catch (error) {
+      res.status(401).json({ message: error.message });
     }
+  };
+  
+  
+  
 
-    // Compare the password with the hashed password stored in the database
-    const isMatch = await bcrypt.compare(password, user.password);
 
-    if (!isMatch) {
-      throw new Error('Invalid email or password.');
+  export const logout = (req, res) => {
+    res.clearCookie('token', { 
+      httpOnly: true, 
+      path: '/',  // Consistent with login 
+    });
+  
+    res.status(200).json({ message: 'Logout successful. Token removed from client side.' });
+  };
+  
+  
+  
+  
+  
+  
+  
+
+
+
+  export const protectedRoute = (req, res) => {
+    const token = req.cookies.authToken;  // Get token from cookie
+  
+    if (!token) {
+      return res.status(401).json({ message: 'Token is missing.' });
     }
+  
+    try {
+      const decoded = TokenManager.verifyToken(token);
+      res.status(200).json({ message: `Welcome ${decoded.email}!`, data: decoded });
+  
+    } catch (error) {
+      res.status(401).json({ message: error.message });
+    }
+  };
+  
 
-    return user; // Return the user object for token generation
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // export const login= async (req, res) => {
+  //   const { email, password } = req.body;
+
+  //   try {
+  //     const user = await User.findOne({ email });
+
+  //     if (!user) {
+  //       throw new Error('Invalid email or password.');
+  //     }
+
+  //     const isMatch = await bcrypt.compare(password, user.password);
+
+  //     if (!isMatch) {
+  //       throw new Error('Invalid email or password.');
+  //     }
+
+  //     const token = TokenManager.generateToken({ email: user.email });
+
+  //     res.status(200).json({ message: 'Login successful.', token });
+
+  //   } catch (error) {
+  //     res.status(401).json({ message: error.message });
+  //   }
+  // }
+
+  // export const logout= async(req, res) => {
+  //   const authHeader = req.headers.authorization;
+
+  //   if (!authHeader) {
+  //     return res.status(401).json({ message: 'Authorization token is missing.' });
+  //   }
+
+  //   const token = authHeader.split(' ')[1];
+
+  //   try {
+  //     TokenManager.verifyToken(token);
+  //     res.status(200).json({ message: 'Logout successful. Token removed from client side.' });
+  //   } catch (error) {
+  //     res.status(401).json({ message: 'Invalid or expired token.' });
+  //   }
+  // }
+
+  // export const protectedRoute= async (req, res) => {
+  //   const { token } = req.body;
+
+  //   if (!token) {
+  //     return res.status(401).json({ message: 'Token is missing.' });
+  //   }
+
+  //   try {
+  //     const decoded = TokenManager.verifyToken(token);
+  //     res.status(200).json({ message: `Welcome ${decoded.email}!`, data: decoded });
+
+  //   } catch (error) {
+  //     res.status(401).json({ message: error.message });
+  //   }
+  // }
+
+  export const getUsers= async (req, res) => {
+    try {
+      const users = await User.find();
+      res.status(200).json({ users });
+    } catch (error) {
+      res.status(500).json({ message: `Error fetching users: ${error.message}` });
+    }
   }
 
-  // Get all users
-  async getUsers() {
-    return await User.find();
+  export const getUser = async (req, res) => {
+    const { id } = req.params;
+  
+    try {
+      const user = await User.findById(id); // Changed from findOne to findById
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found.' });
+      }
+  
+      res.status(200).json({ user });
+    } catch (error) {
+      res.status(500).json({ message: `Error fetching user: ${error.message}` });
+    }
   }
-}
+  
+
+  export const updateUser = async (req, res) => {
+    const { id } = req.params;
+    const { firstName, lastName, profileImage } = req.body;
+  
+    try {
+      const updatedUser = await User.findByIdAndUpdate(
+        id, 
+        { firstName, lastName, profileImage }, 
+        { new: true }
+      );
+  
+      if (!updatedUser) {
+        return res.status(404).json({ message: 'User not found.' });
+      }
+  
+      res.status(200).json({ message: 'User updated successfully.', user: updatedUser });
+    } catch (error) {
+      res.status(500).json({ message: `Error updating user: ${error.message}` });
+    }
+  }
+  
+
+  export const deleteUser = async (req, res) => {
+    const { id } = req.params;
+  
+    try {
+      const deletedUser = await User.findByIdAndDelete(id); // Changed to findByIdAndDelete
+  
+      if (!deletedUser) {
+        return res.status(404).json({ message: 'User not found.' });
+      }
+  
+      res.status(200).json({ message: 'User deleted successfully.' });
+    } catch (error) {
+      res.status(500).json({ message: `Error deleting user: ${error.message}` });
+    }
+  }
+  
+  export const updateUserLanguage = async (req, res) => {
+    const { id } = req.params;
+    const { language } = req.body;
+  
+    try {
+      const updatedUser = await User.findByIdAndUpdate(
+        id,
+        { language },
+        { new: true }
+      );
+  
+      if (!updatedUser) {
+        return res.status(404).json({ message: 'User not found.' });
+      }
+  
+      res.status(200).json({ message: 'Language updated successfully.', user: updatedUser });
+  
+    } catch (error) {
+      res.status(500).json({ message: `Error updating language: ${error.message}` });
+    }
+  };
+  
+
+

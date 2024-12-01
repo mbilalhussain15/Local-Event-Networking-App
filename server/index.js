@@ -1,20 +1,39 @@
-import express from 'express';  // Import express
-import dotenv from 'dotenv';
-dotenv.config();  // Load environment variables from .env file
-
-import connectDB from './utils/mongoDB.js';  // Import MongoDB connection utility
-import userRoutes from './routes/userRoutes.js';  // Import routes from userRoutes.js
+import express from 'express';  
+import dotenv from 'dotenv';  
+import cors from 'cors';  
+import helmet from 'helmet';  
+import morgan from 'morgan';  
+import connectDB from './utils/mongoDB.js';  
+import userRoutes from './routes/userRoutes.js';  
+import cookieParser from 'cookie-parser';
 import routes from './routes/index.js';
-const app = express();  // Initialize Express app
 
-app.use(express.json());  // Parse JSON request bodies
+dotenv.config();  // Load environment variables
+
+const app = express();  
+
+// Middleware setup
+app.use(express.json());  
+app.use(cors());  
+app.use(helmet());  
+app.use(morgan('dev'));  
+app.use(cookieParser());
+
+// Database connection
 connectDB();
 
-app.use('/api/users', userRoutes);  // Use userRoutes for API requests
+// API routes
+app.use('/api/users', userRoutes);  
+app.use('/api', routes);
 
-app.use("/api", routes);
-const PORT = process.env.PORT || 4000;  // Get the port from the .env file or default to 4000
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Something went wrong!' });
+});
 
+// Start the server
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });

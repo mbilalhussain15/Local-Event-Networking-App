@@ -1,52 +1,28 @@
 import express from 'express';
-import { UserManager } from '../controllers/userController.js'; // Import the UserManager class
-import { TokenManager } from '../utils/jwtTokenManager.js'; // Import TokenManager class
+import { 
+  deleteUser, 
+  getUsers, 
+  getUser,
+  login, 
+  logout, 
+  protectedRoute, 
+  register,
+  updateUserLanguage, 
+  updateUser 
+} from '../controllers/userController.js';
+import { verifyToken } from '../middleware/verifyToken.js'
 
 const router = express.Router();
 
-// Create an instance of the UserManager class
-const userManager = new UserManager();
+router.post('/register', register);
+router.post('/login', login);
+router.post('/logout', logout);
+router.get('/protected', protectedRoute);
 
-// Registration route
-router.post('/register', async (req, res) => {
-  const { firstName, lastName, email, password, profileImage } = req.body;
+router.get('/users',verifyToken, getUsers);            
+router.get('/users/:id',verifyToken, getUser);     
+router.put('/users/:id',verifyToken, updateUser);      
+router.delete('/users/:id',verifyToken, deleteUser);
+router.put('/users/:id/language', verifyToken, updateUserLanguage);
 
-  try {
-    const newUser = await userManager.registerUser(firstName, lastName, email, password, profileImage);
-    res.status(201).json({ message: 'User registered successfully.', user: newUser });
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-
-router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    const user = await userManager.authenticateUser(email, password);
-    
-    const token = TokenManager.generateToken({ email: user.email });
-
-    res.status(200).json({ message: 'Login successful.', token });
-  } catch (error) {
-    res.status(401).json({ message: error.message });
-  }
-});
-
-router.get('/protected', (req, res) => {
-  const { token } = req.body; 
-
-  if (!token) {
-    return res.status(401).json({ message: 'Token is missing.' });
-  }
-
-  try {
-    const decoded = TokenManager.verifyToken(token);
-
-    res.status(200).json({ message: `Welcome ${decoded.email}!`, data: decoded });
-  } catch (error) {
-    res.status(401).json({ message: error.message });
-  }
-});
-
-export default router; 
+export default router;
