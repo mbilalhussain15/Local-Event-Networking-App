@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 
-
 const locationSchema = new mongoose.Schema({
     name: { type: String },
     address: { type: String },
@@ -16,7 +15,8 @@ const eventSchema = new mongoose.Schema({
     eventName: { type: String },
     description: { type: String },
     category: { type: String },
-    max_capacity: { type: Number },
+    maxCapacity: { type: Number, required: true },
+    totalTicketsSold: { type: Number, default: 0 },
     registration_required: { type: Boolean },
     contact_email: { type: String },
     is_virtual: { type: Boolean },
@@ -25,4 +25,6 @@ const eventSchema = new mongoose.Schema({
     date: { type: Date }
 });
 
-export default mongoose.model('addEvent', eventSchema);
+// Use a singular model name here, which will be automatically pluralized to 'events'
+export default mongoose.model('Event', eventSchema);
+
