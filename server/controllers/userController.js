@@ -4,7 +4,7 @@ import { TokenManager } from '../utils/jwtTokenManager.js';
 
 
 export const register = async (req, res) => {
-  const { firstName, lastName, email, password, profileImage, language = 'English', isActive = true } = req.body;
+  const { firstName, lastName, email, password, profileImage, language = 'English', isActive = true, phone } = req.body;
 
   try {
     const userExists = await User.findOne({ email });
@@ -19,10 +19,11 @@ export const register = async (req, res) => {
       firstName,
       lastName,
       email,
-      password: hashedPassword,  
+      password: hashedPassword,
       profileImage,
-      isActive,  
+      isActive,
       language,  // Set default language as English or user-provided
+      phone, // Use phone instead of mobileNumber
     });
 
     await newUser.save();
@@ -34,76 +35,44 @@ export const register = async (req, res) => {
 };
 
 
-  
-  // export const login = async (req, res) => {
-  //   const { email, password } = req.body;
-  
-  //   try {
-  //     const user = await User.findOne({ email });
-  
-  //     if (!user) {
-  //       throw new Error('Invalid email or password.');
-  //     }
-  
-  //     const isMatch = await bcrypt.compare(password, user.password);
-  
-  //     if (!isMatch) {
-  //       throw new Error('Invalid email or password.');
-  //     }
-  
-  //     // Generate the token
-  //     const token = TokenManager.generateToken({ email: user.email });
-  
-  //     // Set token in cookie
-  //     res.cookie('authToken', token, {
-  //       httpOnly: true,   // Prevent access to the cookie from JavaScript
-  //       secure: process.env.NODE_ENV === 'production', // Only set the cookie over HTTPS in production
-  //       sameSite: 'Strict', // Prevent CSRF attacks
-  //       maxAge: 3600000 // Token expiration (1 hour)
-  //     });
-  
-  //     res.status(200).json({ message: 'Login successful.' });
-  
-  //   } catch (error) {
-  //     res.status(401).json({ message: error.message });
-  //   }
-  // };
-  export const login = async (req, res) => {
-    const { email, password } = req.body;
-  
-    try {
-      const user = await User.findOne({ email });
-  
-      if (!user) {
-        throw new Error('Invalid email or password.');
-      }
-  
-      const isMatch = await bcrypt.compare(password, user.password);
-  
-      if (!isMatch) {
-        throw new Error('Invalid email or password.');
-      }
-  
-      const token = TokenManager.generateToken({ email: user.email });
-  
-      // Set cookie named 'token' with 1-hour expiration
-      res.cookie('token', token, { 
-        httpOnly: true, 
-        maxAge: 60 * 60 * 1000,  // 1 hour
-        path: '/',  
-      });
-  
-      res.status(200).json({ message: 'Login successful.' });
-  
-    } catch (error) {
-      res.status(401).json({ message: error.message });
+
+export const login = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    // Step 1: Find the user by email
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid email or password.' });
     }
-  };
-  
-  
-  
 
+    // Step 2: Compare the input password with the stored hashed password
+    const isMatch = await bcrypt.compare(password, user.password);
 
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid email or password.' });
+    }
+
+    // Step 3: Generate a JWT token with user information (you may want to use user ID for better security)
+    const token = TokenManager.generateToken({ userId: user._id, email: user.email });
+
+    // Step 4: Set cookie with token, secure only in HTTPS and HttpOnly for security
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 60 * 60 * 1000,  // 1 hour expiration
+      path: '/',
+    });
+
+    // Step 5: Respond with success
+    res.status(200).json({ message: 'Login successful.' });
+
+  } catch (error) {
+    console.error(error);  // Log error for debugging
+    res.status(401).json({ message: 'Server error, please try again later.' });
+  }
+};
   export const logout = (req, res) => {
     res.clearCookie('token', { 
       httpOnly: true, 
@@ -113,14 +82,6 @@ export const register = async (req, res) => {
     res.status(200).json({ message: 'Logout successful. Token removed from client side.' });
   };
   
-  
-  
-  
-  
-  
-  
-
-
 
   export const protectedRoute = (req, res) => {
     const token = req.cookies.authToken;  // Get token from cookie
@@ -138,82 +99,6 @@ export const register = async (req, res) => {
     }
   };
   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // export const login= async (req, res) => {
-  //   const { email, password } = req.body;
-
-  //   try {
-  //     const user = await User.findOne({ email });
-
-  //     if (!user) {
-  //       throw new Error('Invalid email or password.');
-  //     }
-
-  //     const isMatch = await bcrypt.compare(password, user.password);
-
-  //     if (!isMatch) {
-  //       throw new Error('Invalid email or password.');
-  //     }
-
-  //     const token = TokenManager.generateToken({ email: user.email });
-
-  //     res.status(200).json({ message: 'Login successful.', token });
-
-  //   } catch (error) {
-  //     res.status(401).json({ message: error.message });
-  //   }
-  // }
-
-  // export const logout= async(req, res) => {
-  //   const authHeader = req.headers.authorization;
-
-  //   if (!authHeader) {
-  //     return res.status(401).json({ message: 'Authorization token is missing.' });
-  //   }
-
-  //   const token = authHeader.split(' ')[1];
-
-  //   try {
-  //     TokenManager.verifyToken(token);
-  //     res.status(200).json({ message: 'Logout successful. Token removed from client side.' });
-  //   } catch (error) {
-  //     res.status(401).json({ message: 'Invalid or expired token.' });
-  //   }
-  // }
-
-  // export const protectedRoute= async (req, res) => {
-  //   const { token } = req.body;
-
-  //   if (!token) {
-  //     return res.status(401).json({ message: 'Token is missing.' });
-  //   }
-
-  //   try {
-  //     const decoded = TokenManager.verifyToken(token);
-  //     res.status(200).json({ message: `Welcome ${decoded.email}!`, data: decoded });
-
-  //   } catch (error) {
-  //     res.status(401).json({ message: error.message });
-  //   }
-  // }
 
   export const getUsers= async (req, res) => {
     try {
@@ -301,5 +186,60 @@ export const register = async (req, res) => {
     }
   };
   
-
+  export const updatePassword = async (req, res) => {
+    const { oldPassword, newPassword, confirmPassword } = req.body;
+    const { userId } = req.params; // Assuming the userId is sent in the URL params
+  
+    try {
+      // Step 1: Validate input
+      if (!oldPassword || !newPassword || !confirmPassword) {
+        return res.status(400).json({ message: 'All fields are required.' });
+      }
+  
+      if (newPassword !== confirmPassword) {
+        return res.status(400).json({ message: 'New password and confirm password do not match.' });
+      }
+  
+      // Step 2: Find the user by userId
+      const user = await User.findById(userId);
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found.' });
+      }
+  
+      // Step 3: Check if the old password is correct
+      const isMatch = await bcrypt.compare(oldPassword, user.password);
+  
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Old password is incorrect.' });
+      }
+  
+      // Step 4: Hash the new password
+      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+  
+      // Step 5: Update the user's password in the database
+      user.password = hashedNewPassword; // Update the password field with the new hashed password
+  
+      // **Important:** Ensure you're calling .save() to persist changes
+      await user.save();  // This will save the updated user with the new password
+  
+      // Step 6: Generate a new token (optional but can be useful)
+      const token = TokenManager.generateToken({ userId: user._id, email: user.email });
+  
+      // Set the token in cookies (or you can return it in the response if needed)
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',  // Ensures cookies are sent only over HTTPS in production
+        maxAge: 60 * 60 * 1000,  // 1 hour expiration
+        path: '/',  // Make the cookie available across the entire domain
+      });
+  
+      // Step 7: Respond with success
+      res.status(200).json({ message: 'Password updated successfully. Please log in again with the new password.' });
+  
+    } catch (error) {
+      console.error(error);  // Log error for debugging
+      res.status(400).json({ message: error.message });
+    }
+  };
 

@@ -23,7 +23,7 @@ app.use(cookieParser());
 connectDB();
 
 // API routes
-app.use('/api/users', userRoutes);  
+app.use('/api/', userRoutes);  
 app.use('/api', routes);
 
 // Error handling middleware

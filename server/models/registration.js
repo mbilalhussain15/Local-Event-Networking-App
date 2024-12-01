@@ -9,7 +9,9 @@ const userSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
   profileImage: { type: String },
+  phone: { type: String, required: true },
   language: { type: String, default: 'English' }  // New language field with default value
+  
 });
 
 const User = mongoose.model('User', userSchema);
