@@ -1,39 +1,39 @@
-import express from 'express';  
-import dotenv from 'dotenv';  
-import cors from 'cors';  
-import helmet from 'helmet';  
-import morgan from 'morgan';  
-import connectDB from './utils/mongoDB.js';  
-import userRoutes from './routes/userRoutes.js';  
+import http from 'http';
+import express from 'express';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import helmet from 'helmet';
+import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
-import routes from './routes/index.js';
+import connectDB from './utils/mongoDB.js';
+import userRoutes from './routes/userRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
+import { initializeSocket } from './controllers/notificationController.js';  // Import the socket initializer
 
-dotenv.config();  // Load environment variables
+dotenv.config();
 
-const app = express();  
+const app = express();
+const server = http.createServer(app);  // Create an HTTP server
+
+// Initialize socket configuration
+initializeSocket(server);
 
 // Middleware setup
-app.use(express.json());  
-app.use(cors());  
-app.use(helmet());  
-app.use(morgan('dev'));  
+app.use(express.json());
+app.use(cors());
+app.use(helmet());
+app.use(morgan('dev'));
 app.use(cookieParser());
 
 // Database connection
 connectDB();
 
 // API routes
-app.use('/api/', userRoutes);  
-app.use('/api', routes);
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!' });
-});
+app.use('/api', userRoutes);  // User management routes
+app.use('/api/notifications', notificationRoutes);  // Notification routes
 
 // Start the server
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
