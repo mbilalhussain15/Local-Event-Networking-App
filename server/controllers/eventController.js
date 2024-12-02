@@ -1,30 +1,40 @@
 import Event from '../models/eventModel.js';
 
+// Create event with location details
 export const createEvent = async (req, res) => {
     try {
         const {
             eventName,
             description,
             category,
-            max_capacity,
+            maxCapacity,
             registration_required,
             contact_email,
             is_virtual,
             created_by,
             date,
+            location, // Accept location object
         } = req.body;
+
+        // Validate location
+        if (!location || !location.venueName || !location.latitude || !location.longitude) {
+            return res.status(400).json({
+                success: false,
+                message: "Location details are required and must include venueName, latitude, and longitude.",
+            });
+        }
 
         const newEvent = new Event({
             eventName,
             description,
             category,
-            maxCapacity: max_capacity,
-            registrationRequired: registration_required,
-            contactEmail: contact_email,
-            isVirtual: is_virtual,
-            createdBy: created_by,
+            maxCapacity,
+            registration_required,
+            contact_email,
+            is_virtual,
+            created_by,
             date,
-            totalTicketsSold: 0, // Initialize tickets sold to 0
+            location, // Save location details
         });
 
         const savedEvent = await newEvent.save();
@@ -34,44 +44,22 @@ export const createEvent = async (req, res) => {
             event: savedEvent,
         });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
+// Update event (location can be updated here too)
 export const updateEvent = async (req, res) => {
     try {
-        const {
-            eventName,
-            description,
-            category,
-            max_capacity,
-            registration_required,
-            contact_email,
-            is_virtual,
-            created_by,
-            date,
-        } = req.body;
-
-        const updatedData = {
-            eventName,
-            description,
-            category,
-            maxCapacity: max_capacity,
-            registrationRequired: registration_required,
-            contactEmail: contact_email,
-            isVirtual: is_virtual,
-            createdBy: created_by,
-            date,
-        };
-
+        const updatedData = req.body; // Accept all updates, including location
         const updatedEvent = await Event.findByIdAndUpdate(
             req.params.id,
             updatedData,
-            { new: true }
+            { new: true } // Return the updated document
         );
 
         if (!updatedEvent) {
-            return res.status(404).json({ message: "Event not found" });
+            return res.status(404).json({ success: false, message: "Event not found" });
         }
 
         res.status(200).json({
@@ -80,9 +68,11 @@ export const updateEvent = async (req, res) => {
             event: updatedEvent,
         });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ success: false, error: error.message });
     }
 };
+
+
 
 export const getAllEvents = async (req, res) => {
     try {
@@ -114,5 +104,40 @@ export const deleteEvent = async (req, res) => {
         res.status(200).json({ message: "Event deleted successfully" });
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+};
+
+// In controllers/eventController.js
+
+export const updateEventLocation = async (req, res) => {
+    try {
+        const { venueName, streetAddress, city, state, postalCode, country, latitude, longitude } = req.body;
+
+        // Validate location data
+        if (!venueName || !streetAddress || !city || !postalCode || !country || !latitude || !longitude) {
+            return res.status(400).json({
+                success: false,
+                message: "All location fields are required (venueName, streetAddress, city, postalCode, country, latitude, longitude).",
+            });
+        }
+
+        // Find the event by ID and update the location
+        const updatedEvent = await Event.findByIdAndUpdate(
+            req.params.id,
+            { location: { venueName, streetAddress, city, state, postalCode, country, latitude, longitude } },
+            { new: true } // Return the updated document
+        );
+
+        if (!updatedEvent) {
+            return res.status(404).json({ success: false, message: "Event not found" });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Event location updated successfully",
+            event: updatedEvent,
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
     }
 };
