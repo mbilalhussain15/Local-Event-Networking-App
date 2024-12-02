@@ -9,6 +9,7 @@ import connectDB from './utils/mongoDB.js';
 import userRoutes from './routes/userRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import { initializeSocket } from './controllers/notificationController.js';  // Import the socket initializer
+import routes from './routes/index.js';
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use(cookieParser());
 connectDB();
 
 // API routes
+app.use("/api", routes);
 app.use('/api', userRoutes);  // User management routes
 app.use('/api/notifications', notificationRoutes);  // Notification routes
 
