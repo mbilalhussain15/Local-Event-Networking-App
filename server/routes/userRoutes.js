@@ -21,7 +21,7 @@ router.post('/logout', logout);
 router.get('/protected', protectedRoute);
 
 router.get('/users',verifyToken, getUsers);            
-router.get('/users/:id',verifyToken, getUser);     
+router.get('/users/:id', getUser);     
 router.put('/users/:id',verifyToken, updateUser);      
 router.delete('/users/:id',verifyToken, deleteUser);
 
