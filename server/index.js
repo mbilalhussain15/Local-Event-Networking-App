@@ -21,7 +21,12 @@ initializeSocket(server);
 
 // Middleware setup
 app.use(express.json());
-app.use(cors());
+//app.use(cors());
+app.use(cors({
+  origin: '*', // Allow all origins (change to specific domain in production)
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-access-token']
+}));
 app.use(helmet());
 app.use(morgan('dev'));
 app.use(cookieParser());

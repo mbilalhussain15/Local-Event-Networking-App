@@ -1,125 +1,56 @@
-import React from 'react';
-import { StyleSheet } from 'react-native';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-
+import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import StackNavigator from './navigation/StackNavigator.jsx';
+import { createStackNavigator } from '@react-navigation/stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const RootApp = () => {
+// Import Screens
+import LoginScreen from './screens/LoginScreen';
+import HomeScreen from './screens/HomeScreen';
+import ExploreScreen from './screens/ExploreScreen';
+import EventsScreen from './screens/EventsScreen';
+import MapScreen from './screens/MapScreen';
+import ProfileScreen from './screens/ProfileScreen';
+
+const Stack = createStackNavigator();
+
+const App = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const token = await AsyncStorage.getItem('userToken');
+        setIsAuthenticated(!!token);
+      } catch (error) {
+        console.error('Error checking authentication:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  if (loading) {
+    return null; // Optionally, you can add a loading spinner component here
+  }
+
   return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        <SafeAreaView style={styles.container}>
-          <StackNavigator />
-        </SafeAreaView>
-      </NavigationContainer>
-    </SafeAreaProvider>
+    <NavigationContainer>
+      <Stack.Navigator
+        initialRouteName={isAuthenticated ? 'Home' : 'Login'}
+        screenOptions={{ headerShown: false }}
+      >
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Explore" component={ExploreScreen} />
+        <Stack.Screen name="Events" component={EventsScreen} />
+        <Stack.Screen name="Map" component={MapScreen} />
+        <Stack.Screen name="Profile" component={ProfileScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
-
-export default RootApp;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// // App.js (Root - Entry Point)
-// import React from 'react';
-// import { StyleSheet } from 'react-native';
-// import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'; // Import SafeAreaProvider
-
-// import { NavigationContainer } from '@react-navigation/native'; 
-// import StackNavigator from './navigation/StackNavigator.jsx'; 
-
-// const RootApp = () => {
-//   return (
-//     <SafeAreaProvider> {/* Wrap the app with SafeAreaProvider */}
-//       <NavigationContainer>
-//         <SafeAreaView style={styles.container}> {/* SafeAreaView around the content */}
-//           <StackNavigator />  
-//         </SafeAreaView>
-//       </NavigationContainer>
-//     </SafeAreaProvider>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//   },
-// });
-
-// export default RootApp;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// // App.js (Root - Entry Point)
-// import React from 'react';
-// import { StyleSheet } from 'react-native';
-// import { SafeAreaView } from 'react-native-safe-area-context';
-
-// import { NavigationContainer } from '@react-navigation/native'; 
-// import StackNavigator from './navigation/StackNavigator.jsx'; 
-
-// const RootApp = () => {
-//   return (
-//     <SafeAreaView style={styles.container}>
-//       <NavigationContainer>
-//         <StackNavigator />  
-//       </NavigationContainer>
-//     </SafeAreaView>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//   },
-// });
-
-// export default RootApp;
+export default App;
