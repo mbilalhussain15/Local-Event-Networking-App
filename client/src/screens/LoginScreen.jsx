@@ -1,89 +1,55 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
-  View,
+  Alert,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
-  Alert,
+  View,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
-
-const BASE_URL = 'http://10.0.2.2:4000/api/login';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 const LoginScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
 
-  const handleLogin = async () => {
+  const handleLogin = () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      Alert.alert(t('error'), t('fillAllFields'));
       return;
     }
-
-    try {
-      const response = await axios.post(`${BASE_URL}`, { email, password });
-      console.log("response = ",response)
-      const { message, token } = response.data;
-
-      if (rememberMe) {
-        await AsyncStorage.setItem('userToken', token);
-      }
-
-      Alert.alert('Success', message);
-      // Navigate to the next screen
-      navigation.replace('Home');
-    } catch (error) {
-        console.log("error = ",error.message)
-      Alert.alert('Login Failed', error.response?.data?.message || 'Something went wrong');
-    }
+    // Handle login logic here
+    Alert.alert(t('success'), t('loginSuccess'));
+    navigation.replace('Home');
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.logo}>EVENTHUB</Text>
+      <LanguageSwitcher />
+      <Text style={styles.logo}>{t('login.title')}</Text>
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
-          placeholder="abc@email.com"
+          placeholder={t('login.email')}
           keyboardType="email-address"
           value={email}
           onChangeText={setEmail}
         />
         <TextInput
           style={styles.input}
-          placeholder="Your password"
+          placeholder={t('login.password')}
           secureTextEntry
           value={password}
           onChangeText={setPassword}
         />
       </View>
-      <View style={styles.rememberContainer}>
-        <TouchableOpacity onPress={() => setRememberMe(!rememberMe)}>
-          <Text style={[styles.rememberText, rememberMe && styles.checked]}>
-            {rememberMe ? '✔ Remember Me' : 'Remember Me'}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('ForgotPasswordScreen')}>
-          <Text style={styles.forgotText}>Forgot Password?</Text>
-        </TouchableOpacity>
-      </View>
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>SIGN IN</Text>
+        <Text style={styles.buttonText}>{t('login.signIn')}</Text>
       </TouchableOpacity>
-      <Text style={styles.orText}>OR</Text>
-      <View style={styles.socialContainer}>
-        <TouchableOpacity style={styles.socialButton}>
-          <Text style={styles.socialText}>Login with Google</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.socialButton}>
-          <Text style={styles.socialText}>Login with Facebook</Text>
-        </TouchableOpacity>
-      </View>
       <TouchableOpacity onPress={() => navigation.navigate('RegisterScreen')}>
-        <Text style={styles.registerText}>Don’t have an account? Sign up</Text>
+        <Text style={styles.registerText}>{t('login.signUpPrompt')}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -115,23 +81,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     backgroundColor: '#fff',
   },
-  rememberContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '85%',
-    marginBottom: 20,
-  },
-  rememberText: {
-    fontSize: 14,
-    color: '#333',
-  },
-  checked: {
-    color: '#5C3BE7',
-  },
-  forgotText: {
-    fontSize: 14,
-    color: '#5C3BE7',
-  },
   button: {
     backgroundColor: '#5C3BE7',
     width: '85%',
@@ -145,24 +94,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-  },
-  orText: {
-    marginVertical: 10,
-    color: '#333',
-  },
-  socialContainer: {
-    width: '85%',
-  },
-  socialButton: {
-    backgroundColor: '#eee',
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 8,
-    marginBottom: 10,
-  },
-  socialText: {
-    color: '#333',
   },
   registerText: {
     marginTop: 20,

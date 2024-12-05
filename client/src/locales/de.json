@@ -1,0 +1,19 @@
+{
+    "login": {
+      "title": "Anmelden",
+      "email": "E-Mail-Adresse",
+      "password": "Passwort",
+      "signIn": "ANMELDEN",
+      "signUpPrompt": "Kein Konto? Registrieren"
+    },
+    "register": {
+      "title": "Registrieren",
+      "fullName": "Vollständiger Name",
+      "email": "E-Mail-Adresse",
+      "password": "Passwort",
+      "confirmPassword": "Passwort bestätigen",
+      "signUp": "REGISTRIEREN",
+      "signInPrompt": "Bereits registriert? Anmelden"
+    }
+  }
+  

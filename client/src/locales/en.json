@@ -1,0 +1,19 @@
+{
+    "login": {
+      "title": "Sign In",
+      "email": "Email Address",
+      "password": "Password",
+      "signIn": "SIGN IN",
+      "signUpPrompt": "Don't have an account? Sign up"
+    },
+    "register": {
+      "title": "Sign Up",
+      "fullName": "Full Name",
+      "email": "Email Address",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "signUp": "SIGN UP",
+      "signInPrompt": "Already have an account? Sign in"
+    }
+  }
+  
