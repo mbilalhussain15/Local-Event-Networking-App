@@ -3,7 +3,7 @@ import { StyleSheet, Text, TextInput, View } from 'react-native';
 
 const SearchBar = ({ placeholder }) => (
   <View style={styles.searchBar}>
-    <Text>🔍</Text> {/* Replace with a search icon */}
+    <Text>🔍</Text> 
     <TextInput
       style={styles.searchInput}
       placeholder={placeholder}

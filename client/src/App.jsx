@@ -1,9 +1,10 @@
+import React, { useEffect, useState } from 'react';
+import { Provider } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import React, { useEffect, useState } from 'react';
 
-
+import store from './redux/store'; // Correct import of store
 
 // Import Screens
 import './i18n';
@@ -25,7 +26,7 @@ const App = () => {
     const checkAuth = async () => {
       try {
         const token = await AsyncStorage.getItem('userToken');
-        setIsAuthenticated(!!token);
+        setIsAuthenticated(!!token); // Set authentication based on token
       } catch (error) {
         console.error('Error checking authentication:', error);
       } finally {
@@ -41,20 +42,22 @@ const App = () => {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName={isAuthenticated ? 'Home' : 'Login'}
-        screenOptions={{ headerShown: false }}
-      >
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="RegisterScreen" component={RegistrationScreen} />
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Explore" component={ExploreScreen} />
-        <Stack.Screen name="Events" component={EventsScreen} />
-        <Stack.Screen name="Map" component={MapScreen} />
-        <Stack.Screen name="Profile" component={ProfileScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Provider store={store}>
+      <NavigationContainer>
+        <Stack.Navigator
+          initialRouteName={isAuthenticated ? 'Home' : 'Login'}
+          screenOptions={{ headerShown: false }}
+        >
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="RegisterScreen" component={RegistrationScreen} />
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="Explore" component={ExploreScreen} />
+          <Stack.Screen name="Events" component={EventsScreen} />
+          <Stack.Screen name="Map" component={MapScreen} />
+          <Stack.Screen name="Profile" component={ProfileScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </Provider>
   );
 };
 

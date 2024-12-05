@@ -1,18 +1,40 @@
 import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  isActive: { type: Boolean, default: true },
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
-  profileImage: { type: String },
-  phone: { type: String, required: true },
-  language: { type: String, default: 'English' }  // New language field with default value
-  
+  firstName: {
+    type: String,
+    required: true,
+  },
+  lastName: {
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+  profileImage: {
+    type: String, // Optional field
+  },
+  language: {
+    type: String,
+    default: 'English', // Default value
+  },
+  isActive: {
+    type: Boolean,
+    default: true, // Default value
+  },
+  phone: {
+    type: String, // Optional field
+    required: false, // Make phone optional
+  },
 });
+
 
 const User = mongoose.model('User', userSchema);
 

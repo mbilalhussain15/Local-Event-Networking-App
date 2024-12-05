@@ -8,10 +8,13 @@
     },
     "register": {
       "title": "Sign Up",
-      "fullName": "Full Name",
+      "firstName": "First Name",
+      "lastName": "Last Name",
       "email": "Email Address",
       "password": "Password",
       "confirmPassword": "Confirm Password",
+      "phone": "Phone Number",
+      "profileImage": "Select Profile Image",
       "signUp": "SIGN UP",
       "signInPrompt": "Already have an account? Sign in"
     }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
@@ -9,20 +9,29 @@ import {
   View,
 } from 'react-native';
 import LanguageSwitcher from '../components/LanguageSwitcher';
+import { useForm, Controller } from "react-hook-form";
+import { useLoginMutation } from "../redux/slices/api/authApiSlice.js";
+import Toast from "react-native-toast-message";
 
 const LoginScreen = ({ navigation }) => {
+  const { control, handleSubmit, formState: { errors } } = useForm(); // Initialize react-hook-form
+  const [login, { isLoading }] = useLoginMutation();
   const { t } = useTranslation();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    if (!email || !password) {
-      Alert.alert(t('error'), t('fillAllFields'));
-      return;
+  // Handling form submission
+  const onSubmit = async (data) => {
+    try {
+      // console.log("data=", data); // Check the data being sent
+      const result = await login(data).unwrap(); // Call login API
+      Toast.show({
+        type: "success",
+        text1: "Login Successful",
+        text2: `Welcome back, ${result?.name || "User"}! 🎉`, // Example success message
+      });
+      navigation.replace("Home"); // Redirect to Home Screen
+    } catch (error) {
+      Alert.alert("Error", error.data?.message || "Login failed");
     }
-    // Handle login logic here
-    Alert.alert(t('success'), t('loginSuccess'));
-    navigation.replace('Home');
   };
 
   return (
@@ -30,27 +39,63 @@ const LoginScreen = ({ navigation }) => {
       <LanguageSwitcher />
       <Text style={styles.logo}>{t('login.title')}</Text>
       <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder={t('login.email')}
-          keyboardType="email-address"
-          value={email}
-          onChangeText={setEmail}
+        {/* Email Input */}
+        <Controller
+          control={control}
+          name="email"  // Name of the field
+          rules={{
+            required: 'Email is required',
+            pattern: {
+              value: /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/i,
+              message: 'Invalid email address',
+            },
+          }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              style={styles.input}
+              placeholder={t('login.email')}
+              keyboardType="email-address"
+              value={value} // Bind value
+              onChangeText={onChange} // Update form state
+              onBlur={onBlur} // Trigger validation on blur
+            />
+          )}
         />
-        <TextInput
-          style={styles.input}
-          placeholder={t('login.password')}
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
+        {errors.email && <Text style={styles.errorText}>{errors.email?.message}</Text>}
+
+        {/* Password Input */}
+        <Controller
+          control={control}
+          name="password"  // Name of the field
+          rules={{ required: 'Password is required' }} // Validation rules
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              style={styles.input}
+              placeholder={t('login.password')}
+              secureTextEntry
+              value={value} // Bind value
+              onChangeText={onChange} // Update form state
+              onBlur={onBlur} // Trigger validation on blur
+            />
+          )}
         />
+        {errors.password && <Text style={styles.errorText}>{errors.password?.message}</Text>}
       </View>
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>{t('login.signIn')}</Text>
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={handleSubmit(onSubmit)} // Wrap onSubmit with handleSubmit
+        disabled={isLoading}
+      >
+        <Text style={styles.buttonText}>
+          {isLoading ? "Logging in..." : "Login"}
+        </Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate('RegisterScreen')}>
-        <Text style={styles.registerText}>{t('login.signUpPrompt')}</Text>
+
+      <TouchableOpacity onPress={() => navigation.navigate("RegisterScreen")}>
+        <Text style={styles.registerText}>Don't have an account? Sign up</Text>
       </TouchableOpacity>
+      <Toast />
     </View>
   );
 };
@@ -98,6 +143,11 @@ const styles = StyleSheet.create({
   registerText: {
     marginTop: 20,
     color: '#5C3BE7',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 12,
+    marginBottom: 10,
   },
 });
 

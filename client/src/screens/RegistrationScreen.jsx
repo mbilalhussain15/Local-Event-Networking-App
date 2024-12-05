@@ -1,85 +1,186 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useRegisterMutation } from "../redux/slices/api/authApiSlice.js";
+import Toast from "react-native-toast-message";
 import {
-    Alert,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  KeyboardAvoidingView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  Platform,
 } from 'react-native';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 
 const RegistrationScreen = ({ navigation }) => {
-  const { t } = useTranslation();
-  const [fullName, setFullName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [language, setLanguage] = useState('English');
+  const [errors, setErrors] = useState({});
+  const [registerUser, { isLoading }] = useRegisterMutation();
+  const { t } = useTranslation();
 
-  const handleSignUp = () => {
-    if (!fullName || !email || !password || !confirmPassword) {
-      Alert.alert(t('error'), t('fillAllFields'));
-      return;
+  const validateForm = () => {
+    const newErrors = {};
+    if (!firstName) newErrors.firstName = 'First Name is required';
+    if (!lastName) newErrors.lastName = 'Last Name is required';
+    if (!email) newErrors.email = 'Email is required';
+    else if (!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/i.test(email)) newErrors.email = 'Invalid email address';
+    if (!password) newErrors.password = 'Password is required';
+    if (!confirmPassword) newErrors.confirmPassword = 'Confirm Password is required';
+    else if (confirmPassword !== password) newErrors.confirmPassword = 'Passwords do not match';
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async () => {
+    if (isLoading) return;
+
+    const isValid = validateForm();
+    if (!isValid) return;
+
+    try {
+      const mappedData = {
+        firstName,
+        lastName,
+        email,
+        password,
+        language,
+      };
+
+      const result = await registerUser(mappedData).unwrap();
+      Toast.show({
+        type: "success",
+        text1: "Registration Successful",
+        text2: `Welcome ${result?.firstName || "User"}! Your account has been created. 🎉`,
+      });
+
+      navigation.navigate("Login");
+    } catch (error) {
+      console.error("Registration error: ", error);
+      Alert.alert("Error", error?.data?.message || "Registration failed");
     }
-
-    if (password !== confirmPassword) {
-      Alert.alert(t('error'), t('passwordMismatch'));
-      return;
-    }
-
-    // Handle sign-up logic here
-    Alert.alert(t('success'), t('accountCreated'));
-    navigation.navigate('Login');
   };
 
   return (
-    <View style={styles.container}>
-      <LanguageSwitcher />
-      <Text style={styles.title}>{t('register.title')}</Text>
-      <TextInput
-        style={styles.input}
-        placeholder={t('register.fullName')}
-        value={fullName}
-        onChangeText={setFullName}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder={t('register.email')}
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder={t('register.password')}
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder={t('register.confirmPassword')}
-        secureTextEntry
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-      />
-      <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-        <Text style={styles.buttonText}>{t('register.signUp')}</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-        <Text style={styles.signInText}>{t('register.signInPrompt')}</Text>
-      </TouchableOpacity>
-    </View>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <LanguageSwitcher />
+        <Text style={styles.title}>{t('register.title')}</Text>
+
+        {/* First Name Input */}
+        <TextInput
+          style={[styles.input, errors.firstName && styles.errorInput]}
+          placeholder={t('register.firstName')}
+          value={firstName}
+          onChangeText={(text) => {
+            setFirstName(text);
+            if (errors.firstName) {
+              setErrors((prev) => ({ ...prev, firstName: null }));
+            }
+          }}
+        />
+        {errors.firstName && <Text style={styles.errorText}>{errors.firstName}</Text>}
+
+        {/* Last Name Input */}
+        <TextInput
+          style={[styles.input, errors.lastName && styles.errorInput]}
+          placeholder={t('register.lastName')}
+          value={lastName}
+          onChangeText={(text) => {
+            setLastName(text);
+            if (errors.lastName) {
+              setErrors((prev) => ({ ...prev, lastName: null }));
+            }
+          }}
+        />
+        {errors.lastName && <Text style={styles.errorText}>{errors.lastName}</Text>}
+
+        {/* Email Input */}
+        <TextInput
+          style={[styles.input, errors.email && styles.errorInput]}
+          placeholder={t('register.email')}
+          keyboardType="email-address"
+          value={email}
+          onChangeText={(text) => {
+            setEmail(text);
+            if (errors.email) {
+              setErrors((prev) => ({ ...prev, email: null }));
+            }
+          }}
+        />
+        {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+
+        {/* Password Input */}
+        <TextInput
+          style={[styles.input, errors.password && styles.errorInput]}
+          placeholder={t('register.password')}
+          secureTextEntry
+          value={password}
+          onChangeText={(text) => {
+            setPassword(text);
+            if (errors.password) {
+              setErrors((prev) => ({ ...prev, password: null }));
+            }
+          }}
+        />
+        {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
+
+        {/* Confirm Password Input */}
+        <TextInput
+          style={[styles.input, errors.confirmPassword && styles.errorInput]}
+          placeholder={t('register.confirmPassword')}
+          secureTextEntry
+          value={confirmPassword}
+          onChangeText={(text) => {
+            setConfirmPassword(text);
+            if (errors.confirmPassword) {
+              setErrors((prev) => ({ ...prev, confirmPassword: null }));
+            }
+          }}
+        />
+        {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
+
+        {/* Submit Button */}
+        <TouchableOpacity
+          style={[styles.button, isLoading && { backgroundColor: '#A2A2A2' }]}
+          onPress={handleSubmit}
+          disabled={isLoading}
+        >
+          <Text style={styles.buttonText}>
+            {isLoading ? "Registering..." : "Sign Up"}
+          </Text>
+        </TouchableOpacity>
+
+        {/* Navigation to Login Screen */}
+        <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+          <Text style={styles.signInText}>{t('register.alreadyHaveAccount')}</Text>
+        </TouchableOpacity>
+        <Toast />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#F9FAFC',
+  },
+  scrollContainer: {
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F9FAFC',
     paddingHorizontal: 20,
   },
   title: {
@@ -95,8 +196,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 10,
-    marginBottom: 15,
+    marginBottom: 5,
     backgroundColor: '#fff',
+  },
+  errorInput: {
+    borderColor: 'red',
   },
   button: {
     backgroundColor: '#5C3BE7',
@@ -105,7 +209,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 8,
-    marginTop: 10,
+    marginTop: 15,
   },
   buttonText: {
     color: '#fff',
@@ -115,6 +219,12 @@ const styles = StyleSheet.create({
   signInText: {
     marginTop: 20,
     color: '#5C3BE7',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 12,
+    alignSelf: 'flex-start', // Align error text to the left
+    marginBottom: 10,
   },
 });
 
