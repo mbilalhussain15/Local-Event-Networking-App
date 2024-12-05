@@ -8,7 +8,7 @@ const Header = ({ location }) => (
       <Text style={styles.location}>{location}</Text>
     </View>
     <TouchableOpacity style={styles.notificationIcon}>
-      <Text>🔔</Text> {/* Replace with an actual icon */}
+      <Text>🔔</Text> 
     </TouchableOpacity>
   </View>
 );
