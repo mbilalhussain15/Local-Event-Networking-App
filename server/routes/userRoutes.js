@@ -20,12 +20,12 @@ router.post('/login', login);
 router.post('/logout', logout);
 router.get('/protected', protectedRoute);
 
-router.get('/users',verifyToken, getUsers);            
-router.get('/users/:id', getUser);     
-router.put('/users/:id',verifyToken, updateUser);      
-router.delete('/users/:id',verifyToken, deleteUser);
+router.get('/getUsers',verifyToken, getUsers);            
+router.get('/getUserById/:id', getUser);     
+router.put('/updateUser/:id',verifyToken, updateUser);      
+router.delete('/deleteUserById/:id',verifyToken, deleteUser);
 
-router.put('/users/:id/language', verifyToken, updateUserLanguage);
+router.put('/:id/language', verifyToken, updateUserLanguage);
 router.put('/updatePassword/:userId', updatePassword);
 
 export default router;

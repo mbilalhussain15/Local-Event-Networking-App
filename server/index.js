@@ -6,8 +6,6 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import connectDB from './utils/mongoDB.js';
-import userRoutes from './routes/userRoutes.js';
-import notificationRoutes from './routes/notificationRoutes.js';
 import { initializeSocket } from './controllers/notificationController.js';  // Import the socket initializer
 import routes from './routes/index.js';
 
@@ -36,8 +34,6 @@ connectDB();
 
 // API routes
 app.use("/api", routes);
-app.use('/api', userRoutes);  // User management routes
-app.use('/api/notifications', notificationRoutes);  // Notification routes
 
 // Start the server
 const PORT = process.env.PORT || 4000;
