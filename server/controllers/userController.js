@@ -6,35 +6,47 @@ import { sendNotificationToUser } from './notificationController.js';
 
 export const register = async (req, res) => {
   const { firstName, lastName, email, password, profileImage, language = 'English', isActive = true, phone } = req.body;
-
+ 
+  // Check if required fields are present
+  if (!firstName || !lastName || !email || !password) {
+    return res.status(400).json({ message: 'First name, last name, email, and password are required.' });
+  }
+ 
   try {
     const userExists = await User.findOne({ email });
-
+ 
     if (userExists) {
       throw new Error('User with this email already exists.');
     }
-
+ 
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
-
+ 
+    // Create new user with optional/default fields
     const newUser = new User({
       firstName,
       lastName,
       email,
       password: hashedPassword,
-      profileImage,
+      profileImage: profileImage || null, // Set to null if not provided
       isActive,
-      language,  // Set default language as English or user-provided
-      phone, // Use phone instead of mobileNumber
+      language,
+      phone: phone || null, // Set to null if not provided
     });
-
+ 
     await newUser.save();
-    sendNotificationToUser(newUser._id, 'Welcome to the app!');  // Send a welcome notification
+ 
+    // Send notification (optional)
+    sendNotificationToUser(newUser._id, 'Welcome to the app!');
+ 
     res.status(201).json({ message: 'User registered successfully.', user: newUser });
-
+ 
   } catch (error) {
     res.status(400).json({ message: error.message });
+   
   }
 };
+
 
 
 
