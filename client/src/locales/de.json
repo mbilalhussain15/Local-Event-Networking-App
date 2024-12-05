@@ -8,10 +8,13 @@
     },
     "register": {
       "title": "Registrieren",
-      "fullName": "Vollständiger Name",
+      "firstName": "Vorname",
+      "lastName": "Nachname",
       "email": "E-Mail-Adresse",
       "password": "Passwort",
       "confirmPassword": "Passwort bestätigen",
+      "phone": "Telefonnummer",
+      "profileImage": "Profilbild auswählen",
       "signUp": "REGISTRIEREN",
       "signInPrompt": "Bereits registriert? Anmelden"
     }
