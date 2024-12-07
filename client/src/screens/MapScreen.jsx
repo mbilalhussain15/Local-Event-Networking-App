@@ -78,8 +78,26 @@ const MapScreen = () => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  map: {
+    flex: 1,
+
+  },
+  loading: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+
+  },
+});
  
-=======
+export default MapScreen;
+
+
 // import React from 'react';
 // import { StyleSheet, View } from 'react-native';
 // import MapView, { Marker } from 'react-native-maps';
@@ -141,22 +159,4 @@ const MapScreen = () => {
 //   );
 // };
 
-// >>>>>>> main
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  map: {
-    flex: 1,
 
-  },
-  loading: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-// =======
-// >>>>>>> main
-  },
-});
- 
-export default MapScreen;
