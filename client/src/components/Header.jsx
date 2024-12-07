@@ -1,15 +1,22 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-const Header = ({ location }) => (
+const Header = ({ onNotificationPress, onSpeechPress }) => (
   <View style={styles.header}>
-    <View>
-      <Text style={styles.locationLabel}>Current Location</Text>
-      <Text style={styles.location}>{location}</Text>
+    {/* App Name */}
+    <Text style={styles.title}>Event In</Text>
+
+    <View style={styles.icons}>
+      {/* Notification Icon */}
+      <TouchableOpacity style={styles.icon} onPress={onNotificationPress}>
+        <Text style={styles.iconText}>🔔</Text>
+      </TouchableOpacity>
+
+      {/* Text-to-Speech Icon */}
+      <TouchableOpacity style={styles.icon} onPress={onSpeechPress}>
+        <Text style={styles.iconText}>🎤</Text>
+      </TouchableOpacity>
     </View>
-    <TouchableOpacity style={styles.notificationIcon}>
-      <Text>🔔</Text> 
-    </TouchableOpacity>
   </View>
 );
 
@@ -23,17 +30,20 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  locationLabel: {
+  title: {
     color: '#FFFFFF',
-    fontSize: 12,
-  },
-  location: {
-    color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: 'bold',
   },
-  notificationIcon: {
-    padding: 10,
+  icons: {
+    flexDirection: 'row',
+  },
+  icon: {
+    marginLeft: 15,
+  },
+  iconText: {
+    fontSize: 24,
+    color: '#FFFFFF',
   },
 });
 
