@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LoginScreen from '../screens/LoginScreen';
 import HomeScreen from '../screens/HomeScreen';
+import MapScreen from '../screens/MapScreen';
 
 const Stack = createStackNavigator();
 
@@ -33,6 +34,11 @@ const StackNavigator = () => {
       <Stack.Screen
         name="Home"
         component={HomeScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Map"
+        component={MapScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

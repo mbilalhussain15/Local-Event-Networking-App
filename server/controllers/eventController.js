@@ -13,6 +13,7 @@ export const createEvent = async (req, res) => {
             is_virtual,
             created_by,
             date,
+            // date date date
             location, // Accept location object
         } = req.body;
 
