@@ -23,6 +23,13 @@ target 'client' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
+   # Add React Native Maps dependency
+   pod 'react-native-maps', :path => '../node_modules/react-native-maps'
+ 
+   # Optional: Google Maps SDK for iOS
+   pod 'GoogleMaps'
+   pod 'Google-Maps-iOS-Utils'
+   
   target 'clientTests' do
     inherit! :complete
     # Pods for testing
