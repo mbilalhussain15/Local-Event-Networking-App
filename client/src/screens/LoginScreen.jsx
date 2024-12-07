@@ -1,4 +1,5 @@
 import React from 'react';
+import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
@@ -8,10 +9,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import LanguageSwitcher from '../components/LanguageSwitcher';
-import { useForm, Controller } from "react-hook-form";
-import { useLoginMutation } from "../redux/slices/api/authApiSlice.js";
 import Toast from "react-native-toast-message";
+import LanguageSwitcher from '../components/LanguageSwitcher';
+import { useLoginMutation } from "../redux/slices/api/authApiSlice.js";
 
 const LoginScreen = ({ navigation }) => {
   const { control, handleSubmit, formState: { errors } } = useForm(); // Initialize react-hook-form
@@ -28,7 +28,7 @@ const LoginScreen = ({ navigation }) => {
         text1: "Login Successful",
         text2: `Welcome back, ${result?.name || "User"}! 🎉`, // Example success message
       });
-      navigation.replace("Home"); // Redirect to Home Screen
+      navigation.replace("Main"); // Redirect to Home Screen
     } catch (error) {
       Alert.alert("Error", error.data?.message || "Login failed");
     }

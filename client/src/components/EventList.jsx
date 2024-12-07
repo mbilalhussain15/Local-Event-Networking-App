@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import EventCard from './EventCard';
+import EventCard from './HomeEventCard';
 
 const EventList = ({ title }) => (
   <View style={styles.eventList}>
