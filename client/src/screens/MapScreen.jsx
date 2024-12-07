@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import axios from 'axios';
+import { MAP_API_KEY } from '@env';
  
 const MapScreen = () => {
   const [regions, setRegions] = useState([]); // Array to store multiple locations
@@ -16,7 +17,7 @@ const MapScreen = () => {
     "Karl-Theodor-Brücke, 69117 Heidelberg, Germany",
   ];
  
-  const API_KEY = "AIzaSyBUuX_g_HY-fYv0D5P9gLP1e4imPTxybCo";
+  const API_KEY = MAP_API_KEY;
  
   useEffect(() => {
     const getCoordinates = async () => {
