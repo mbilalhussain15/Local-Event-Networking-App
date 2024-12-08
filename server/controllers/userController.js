@@ -47,9 +47,6 @@ export const register = async (req, res) => {
   }
 };
 
-
-
-
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -68,7 +65,7 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password.' });
     }
 
-    // Step 3: Generate a JWT token with user information (you may want to use user ID for better security)
+    // Step 3: Generate a JWT token with user information
     const token = TokenManager.generateToken({ userId: user._id, email: user.email });
 
     // Step 4: Set cookie with token, secure only in HTTPS and HttpOnly for security
@@ -79,14 +76,22 @@ export const login = async (req, res) => {
       path: '/',
     });
 
-    // Step 5: Respond with success
-    res.status(200).json({ message: 'Login successful.' });
+    // Step 5: Exclude password and token from the user data in the response
+    const { password: _, ...userWithoutPassword } = user.toObject(); // Convert user document to plain object
+
+    // Step 6: Respond with success and user data
+    res.status(200).json({
+      message: 'Login successful.',
+      user: userWithoutPassword, // User data excluding password
+    });
 
   } catch (error) {
-    console.error(error);  // Log error for debugging
-    res.status(401).json({ message: 'Server error, please try again later.' });
+    console.error(error); // Log error for debugging
+    res.status(500).json({ message: 'Server error, please try again later.' });
   }
 };
+
+
   export const logout = (req, res) => {
     res.clearCookie('token', { 
       httpOnly: true, 
@@ -142,24 +147,25 @@ export const login = async (req, res) => {
 
   export const updateUser = async (req, res) => {
     const { id } = req.params;
-    const { firstName, lastName, profileImage } = req.body;
-  
+    const { firstName, lastName, profileImage, phone } = req.body;
+
     try {
-      const updatedUser = await User.findByIdAndUpdate(
-        id, 
-        { firstName, lastName, profileImage }, 
-        { new: true }
-      );
-  
-      if (!updatedUser) {
-        return res.status(404).json({ message: 'User not found.' });
-      }
-  
-      res.status(200).json({ message: 'User updated successfully.', user: updatedUser });
+        const updatedUser = await User.findByIdAndUpdate(
+            id, 
+            { firstName, lastName, profileImage, phone }, // Include 'phone' here
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        res.status(200).json({ message: 'User updated successfully.', user: updatedUser });
     } catch (error) {
-      res.status(500).json({ message: `Error updating user: ${error.message}` });
+        res.status(500).json({ message: `Error updating user: ${error.message}` });
     }
-  }
+};
+
   
 
   export const deleteUser = async (req, res) => {
