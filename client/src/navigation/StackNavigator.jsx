@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import LoginScreen from '../screens/LoginScreen';
 import HomeScreen from '../screens/HomeScreen';
 import MapScreen from '../screens/MapScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 
 const Stack = createStackNavigator();
 
@@ -41,6 +42,7 @@ const StackNavigator = () => {
         component={MapScreen}
         options={{ headerShown: false }}
       />
+    
     </Stack.Navigator>
   );
 };

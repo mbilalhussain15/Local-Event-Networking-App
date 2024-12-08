@@ -1,131 +1,265 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
-  Alert,
-  Button,
-  Image,
-  Modal,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
   View,
+  Text,
+  Image,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  Modal,
+  Button,
+  Alert,
 } from 'react-native';
+import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
+import { request, PERMISSIONS, RESULTS } from 'react-native-permissions'; 
+import { UserContext } from '../context/UserContext';
+import { useUpdateUserMutation } from "../redux/slices/api/authApiSlice.js";
+import DeviceInfo from 'react-native-device-info';
+import NetInfo from '@react-native-community/netinfo';  
 
 const ProfileScreen = ({ navigation }) => {
-  const [profileImage, setProfileImage] = useState(
-    'https://via.placeholder.com/120'
-  );
-  const [imageModalVisible, setImageModalVisible] = useState(false);
-  const [languageModalVisible, setLanguageModalVisible] = useState(false);
 
-  const handleImageOption = (option) => {
-    setImageModalVisible(false); // Close the modal
-    if (option === 'add') {
-      Alert.alert('Add Photo', 'Functionality to add a photo will go here.');
-    } else if (option === 'edit') {
-      Alert.alert('Edit Photo', 'Functionality to edit the photo will go here.');
-    } else if (option === 'delete') {
-      setProfileImage(null); // Remove the profile image
-      Alert.alert('Delete Photo', 'Profile photo has been deleted.');
+  const { user, setUser } = useContext(UserContext);
+  
+  if (!user) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+  const [profile, setProfile] = useState({
+    firstName: user?.user?.firstName || 'N/A',
+    lastName: user?.user?.lastName || 'N/A',
+    email: user?.user?.email || 'N/A',
+    phone: user?.user?.phone || 'N/A',
+    profileImage:  user?.user?.profileImage || null,
+  });
+
+  const [isEditModalVisible, setEditModalVisible] = useState(false);
+  const [updatedProfile, setUpdatedProfile] = useState({ ...profile });
+  const [updateUser] = useUpdateUserMutation();
+
+
+const getDeviceIp = async () => {
+  try {
+    const ip = await DeviceInfo.getIpAddress();
+    return ip;
+  } catch (error) {
+    console.error("Error getting device IP:", error);
+    return null;
+  }
+};
+
+
+ const updateImageUrlForPlatform = async (url) => {
+  if (!url) return null;
+
+  let updatedUrl = url;
+  const deviceIp = await getDeviceIp();
+
+  if (Platform.OS === 'android') {
+  
+    if (DeviceInfo.isEmulator()) {
+      updatedUrl = url.replace('http://localhost', 'http://10.0.2.2');
+    } else {
+      
+      updatedUrl = url.replace('http://localhost', `http://${deviceIp}`);
+    }
+  } else if (Platform.OS === 'ios') {
+  
+    updatedUrl = url.replace('http://localhost', `http://${deviceIp}`);
+  }
+ 
+  if (updatedUrl.includes('localhost')) {
+   
+    updatedUrl = url; 
+  }
+
+  return updatedUrl;
+};
+
+useEffect(() => {
+  if (profile.profileImage) {
+    const updateImage = async () => {
+      const newImageUrl = await updateImageUrlForPlatform(profile.profileImage);
+      setProfile((prevProfile) => ({
+        ...prevProfile,
+        profileImage: newImageUrl,
+      }));
+    };
+    updateImage();
+  }
+}, [profile.profileImage]);
+
+
+  const validateGermanPhone = (phone) => {
+    const regex = /^\+49\d{9,14}$/;
+    return regex.test(phone);
+  };
+
+  const handleSave = async () => {
+    if (!validateGermanPhone(updatedProfile.phone)) {
+      Alert.alert('Invalid Phone Number', 'Please enter a valid German phone number.');
+      return;
+    }
+  
+    const formData = new FormData();
+    formData.append("firstName", updatedProfile.firstName);
+    formData.append("lastName", updatedProfile.lastName);
+    formData.append("phone", updatedProfile.phone);
+  
+    if (updatedProfile.profileImage) {
+      formData.append("profileImage", {
+        uri: updatedProfile.profileImage, 
+        name: `profile_${Date.now()}.jpg`, 
+        type: "image/jpeg", 
+      });
+    }
+  
+    try {
+      const response = await updateUser({ id: user.user._id, data: formData }).unwrap();
+      setProfile(response.user);
+      setUser(response.user); 
+      setEditModalVisible(false);
+      Alert.alert("Success", "Profile updated successfully.");
+    } catch (error) {
+      console.error("Update Error: ", error);
+      Alert.alert("Error", error.data?.message || "Failed to update profile.");
+    }
+  };
+  
+
+  const handleImageSelect = async () => {
+    const permissionStatus = await request(PERMISSIONS.ANDROID.CAMERA); 
+    if (permissionStatus === RESULTS.GRANTED) {
+      Alert.alert('Select Image', 'Choose from Gallery or Camera', [
+        {
+          text: 'Gallery',
+          onPress: () => launchImageLibrary({ mediaType: 'photo' }, handleImageResponse),
+        },
+        {
+          text: 'Camera',
+          onPress: () => launchCamera({ mediaType: 'photo' }, handleImageResponse),
+        },
+      ]);
+    } else {
+      Alert.alert('Permission Denied', 'You need to grant camera permission to use this feature.');
     }
   };
 
-  const handleLanguageSelect = (language) => {
-    setLanguageModalVisible(false); // Close the modal
-    Alert.alert('Language Updated', `Language set to ${language}`);
-  };
-
-  const handleLogout = () => {
-    navigation.navigate('Login'); // Redirect to Login
+  const handleImageResponse = (response) => {
+    if (response.didCancel) {
+      console.log('User canceled image picker');
+    } else if (response.errorCode) {
+      console.log('Image Picker Error: ', response.errorMessage);
+    } else {
+      const source = { uri: response.assets[0].uri };
+      setUpdatedProfile({ ...updatedProfile, profileImage: source.uri });
+    }
   };
 
   return (
     <View style={styles.container}>
-      {/* Profile Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => setImageModalVisible(true)}>
-          <Image
-            source={
-              profileImage
-                ? { uri: profileImage }
-                : { uri: 'https://via.placeholder.com/120' } // Default placeholder
-            }
-            style={styles.profileImage}
-          />
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Text style={styles.backButton}>{'< Back'}</Text>
         </TouchableOpacity>
-        <Text style={styles.name}>John Doe</Text>
-      </View>
-
-      {/* Language Update Section */}
-      <View style={styles.languageUpdate}>
-        <TouchableOpacity
-          style={styles.updateButton}
-          onPress={() => setLanguageModalVisible(true)}
-        >
-          <Text style={styles.updateButtonText}>Update Language</Text>
+        <Text style={styles.title}>Profile</Text>
+        <TouchableOpacity onPress={() => setEditModalVisible(true)}>
+          <Text style={styles.editButton}>Edit</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Logout Button */}
-      <View style={styles.logoutContainer}>
-        <Button title="Logout" color="#FF6B6B" onPress={handleLogout} />
+      <View style={styles.profileContainer}>
+        <Image
+          source={
+            profile.profileImage
+              ? { uri: profile.profileImage }
+              : require('../assets/default-profile.png')
+          }
+          style={styles.profileImage}
+        />
+        <Text style={styles.profileName}>{`${profile.firstName} ${profile.lastName}`}</Text>
       </View>
 
-      {/* Modal for Profile Picture Options */}
-      <Modal
-        transparent={true}
-        visible={imageModalVisible}
-        animationType="slide"
-        onRequestClose={() => setImageModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Choose an Action</Text>
-            <TouchableOpacity
-              style={styles.modalButton}
-              onPress={() => handleImageOption('add')}
-            >
-              <Text style={styles.modalButtonText}>Add Photo</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.modalButton}
-              onPress={() => handleImageOption('edit')}
-            >
-              <Text style={styles.modalButtonText}>Edit Photo</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.modalButton, styles.destructiveButton]}
-              onPress={() => handleImageOption('delete')}
-            >
-              <Text style={styles.modalButtonText}>Delete Photo</Text>
-            </TouchableOpacity>
-            <Button title="Cancel" onPress={() => setImageModalVisible(false)} />
-          </View>
-        </View>
-      </Modal>
+      <View style={styles.detailsContainer}>
+        <Text style={styles.label}>First Name:</Text>
+        <TextInput style={styles.input} value={profile.firstName} editable={false} />
 
-      {/* Modal for Language Selection */}
+        <Text style={styles.label}>Last Name:</Text>
+        <TextInput style={styles.input} value={profile.lastName} editable={false} />
+
+        <Text style={styles.label}>Email:</Text>
+        <TextInput style={styles.input} value={profile.email} editable={false} />
+
+        <Text style={styles.label}>Phone:</Text>
+        <TextInput
+          style={styles.input}
+          value={profile.phone}
+          editable={false}
+        />
+      </View>
+
       <Modal
-        transparent={true}
-        visible={languageModalVisible}
+        visible={isEditModalVisible}
         animationType="slide"
-        onRequestClose={() => setLanguageModalVisible(false)}
+        transparent={true}
+        onRequestClose={() => setEditModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
+        <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Select a Language</Text>
             <TouchableOpacity
-              style={styles.modalButton}
-              onPress={() => handleLanguageSelect('English')}
+              style={styles.closeModalButton}
+              onPress={() => setEditModalVisible(false)}
             >
-              <Text style={styles.modalButtonText}>English</Text>
+              <Text style={styles.closeButtonText}>×</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.modalButton}
-              onPress={() => handleLanguageSelect('German')}
-            >
-              <Text style={styles.modalButtonText}>German</Text>
+            <Text style={styles.modalTitle}>Edit Profile</Text>
+
+            <TouchableOpacity onPress={handleImageSelect}>
+              <Image
+                source={
+                  updatedProfile.profileImage
+                    ? { uri: updatedProfile.profileImage }
+                    : require('../assets/default-profile.png')
+                }
+                style={[styles.profileImage, styles.modalProfileImage]}
+              />
             </TouchableOpacity>
-            <Button title="Cancel" onPress={() => setLanguageModalVisible(false)} />
+
+            <Text style={styles.label}>First Name:</Text>
+            <TextInput
+              style={styles.input}
+              value={updatedProfile.firstName}
+              onChangeText={(text) =>
+                setUpdatedProfile({ ...updatedProfile, firstName: text })
+              }
+            />
+
+            <Text style={styles.label}>Last Name:</Text>
+            <TextInput
+              style={styles.input}
+              value={updatedProfile.lastName}
+              onChangeText={(text) =>
+                setUpdatedProfile({ ...updatedProfile, lastName: text })
+              }
+            />
+
+            <Text style={styles.label}>Phone:</Text>
+            <TextInput
+              style={styles.input}
+              value={updatedProfile.phone}
+              onChangeText={(text) =>
+                setUpdatedProfile({ ...updatedProfile, phone: text })
+              }
+              placeholder="+491234567890"
+              keyboardType="phone-pad"
+            />
+
+            <View style={styles.modalButtons}>
+              <Button title="Save" onPress={handleSave} color="#007AFF" />
+            </View>
           </View>
         </View>
       </Modal>
@@ -137,9 +271,27 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#F9FAFC',
+    backgroundColor: '#F5F5F5',
   },
   header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  backButton: {
+    fontSize: 16,
+    color: '#007AFF',
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  editButton: {
+    fontSize: 16,
+    color: '#007AFF',
+  },
+  profileContainer: {
     alignItems: 'center',
     marginBottom: 20,
   },
@@ -147,67 +299,64 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    marginBottom: 10,
     borderWidth: 2,
-    borderColor: '#6C5CE7',
+    borderColor: '#007AFF',
   },
-  name: {
-    fontSize: 20,
+  profileName: {
+    marginTop: 10,
+    fontSize: 18,
     fontWeight: 'bold',
   },
-  languageUpdate: {
-    alignItems: 'center',
-    marginVertical: 20,
+  modalProfileImage: {
+    alignSelf: 'center',
   },
-  updateButton: {
-    backgroundColor: '#6C5CE7',
+  detailsContainer: {
+    marginTop: 20,
+  },
+  label: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 5,
+  },
+  input: {
+    backgroundColor: '#FFF',
     padding: 10,
     borderRadius: 5,
-    alignItems: 'center',
-    width: '80%',
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#DDD',
   },
-  updateButtonText: {
-    color: '#FFF',
-    fontWeight: 'bold',
-  },
-  logoutContainer: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    right: 20,
-  },
-  modalOverlay: {
+  modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
+    width: '80%',
     backgroundColor: '#FFF',
     padding: 20,
     borderRadius: 10,
-    alignItems: 'center',
-    width: '80%',
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 15,
+    marginBottom: 20,
   },
-  modalButton: {
-    width: '100%',
-    padding: 15,
-    backgroundColor: '#6C5CE7',
-    borderRadius: 5,
-    marginVertical: 5,
-    alignItems: 'center',
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 20,
   },
-  modalButtonText: {
-    color: '#FFF',
+  closeModalButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+  },
+  closeButtonText: {
+    fontSize: 30,
     fontWeight: 'bold',
-  },
-  destructiveButton: {
-    backgroundColor: '#FF6B6B',
+    color: '#333',
   },
 });
 

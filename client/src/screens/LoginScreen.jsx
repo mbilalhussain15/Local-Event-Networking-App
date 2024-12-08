@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useContext} from 'react';
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from 'react-i18next';
 import {
@@ -12,12 +12,14 @@ import {
 import Toast from "react-native-toast-message";
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import { useLoginMutation } from "../redux/slices/api/authApiSlice.js";
+import { UserContext } from '../context/UserContext.jsx';
+
 
 const LoginScreen = ({ navigation }) => {
   const { control, handleSubmit, formState: { errors } } = useForm(); // Initialize react-hook-form
   const [login, { isLoading }] = useLoginMutation();
   const { t } = useTranslation();
-
+  const { setUser } = useContext(UserContext);
   // Handling form submission
   const onSubmit = async (data) => {
     try {
@@ -26,8 +28,9 @@ const LoginScreen = ({ navigation }) => {
       Toast.show({
         type: "success",
         text1: "Login Successful",
-        text2: `Welcome back, ${result?.name || "User"}! 🎉`, // Example success message
+        text2: `Welcome back, ${result?.user?.firstName || "User"}! 🎉`, // Example success message
       });
+      setUser(result);
       navigation.replace("Main"); // Redirect to Home Screen
     } catch (error) {
       Alert.alert("Error", error.data?.message || "Login failed");

@@ -2,6 +2,8 @@ import User from '../models/registration.js';
 import bcrypt from 'bcryptjs';
 import { TokenManager } from '../utils/jwtTokenManager.js'; 
 import { sendNotificationToUser } from './notificationController.js';
+import path from "path";
+import fs from "fs";
 
 
 export const register = async (req, res) => {
@@ -145,27 +147,40 @@ export const login = async (req, res) => {
   }
   
 
-  export const updateUser = async (req, res) => {
-    const { id } = req.params;
-    const { firstName, lastName, profileImage, phone } = req.body;
+  
+export const updateUser =async (req, res) => {
+  const { id } = req.params;
+  const { firstName, lastName, phone } = req.body;
 
-    try {
-        const updatedUser = await User.findByIdAndUpdate(
-            id, 
-            { firstName, lastName, profileImage, phone }, // Include 'phone' here
-            { new: true }
-        );
+  // Debugging Request Logs
+  console.log("Body: ", req.body);
+  console.log("File: ", req.file);
 
-        if (!updatedUser) {
-            return res.status(404).json({ message: 'User not found.' });
-        }
-
-        res.status(200).json({ message: 'User updated successfully.', user: updatedUser });
-    } catch (error) {
-        res.status(500).json({ message: `Error updating user: ${error.message}` });
+  try {
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
     }
-};
 
+    // If a file is uploaded, update profile image
+    if (req.file) {
+      const profileImage = `http://localhost:4000/api/users/upload/users/${id}/${req.file.filename}`;
+      user.profileImage = profileImage;
+    }
+
+    // Update other fields
+    user.firstName = firstName || user.firstName;
+    user.lastName = lastName || user.lastName;
+    user.phone = phone || user.phone;
+
+    await user.save();
+
+    return res.status(200).json({ message: "User updated successfully.", user });
+  } catch (error) {
+    console.error("Error in updateUser: ", error.message);
+    return res.status(500).json({ message: `Error updating user: ${error.message}` });
+  }
+};
   
 
   export const deleteUser = async (req, res) => {
