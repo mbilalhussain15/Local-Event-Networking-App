@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import store from './redux/store'; // Your Redux store
 import RootNavigator from './navigation/RootNavigator'; // Handle auth flow
+import { UserProvider } from './context/UserContext';
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -26,9 +27,11 @@ const App = () => {
 
   return (
     <Provider store={store}>
-      <NavigationContainer>
-        <RootNavigator isAuthenticated={isAuthenticated} />
-      </NavigationContainer>
+      <UserProvider>
+        <NavigationContainer>
+          <RootNavigator isAuthenticated={isAuthenticated} />
+        </NavigationContainer>
+      </UserProvider>
     </Provider>
   );
 };
