@@ -1,60 +1,93 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Modal } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import axios from 'axios';
 import { MAP_API_KEY } from '@env';
 import ClusteredMapView from 'react-native-maps-clustering';
+import { useGetEventsQuery } from '../redux/slices/api/eventApiSlice';
 
 const MapScreen = () => {
   const [regions, setRegions] = useState([]);
   const [region, setRegion] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null); // Store selected event details for popup
+  const [modalVisible, setModalVisible] = useState(false); // Control modal visibility
 
-  const addresses = [
-    "Bonhoefferstraße 13, 69123 Heidelberg, Germany",
-    "Neckarwiese, 69120 Heidelberg, Germany",
-    "Heidelberger Schloss, 69117 Heidelberg, Germany",
-    "Universitätsplatz, 69117 Heidelberg, Germany",
-    "Karl-Theodor-Brücke, 69117 Heidelberg, Germany",
-  ];
+  // Fetch events from the Redux store using the `useGetEventsQuery` hook
+  const { data: events, error, isLoading } = useGetEventsQuery();
 
   const API_KEY = MAP_API_KEY;
 
   useEffect(() => {
     const getCoordinates = async () => {
-      const locations = [];
-      for (let address of addresses) {
-        try {
-          const response = await axios.get(
-            `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${API_KEY}`
-          );
-          if (response.data.status === "OK") {
-            const location = response.data.results[0].geometry.location;
-            locations.push({
-              latitude: location.lat,
-              longitude: location.lng,
-              title: address,
-              description: address,
-            });
-          } else {
-            setErrorMessage("Unable to fetch coordinates for one or more addresses.");
+      if (events && events.length > 0) {
+        const locations = [];
+        for (let event of events) {
+          const address = `${event.location.streetAddress}, ${event.location.postalCode} ${event.location.city}, ${event.location.country}`;
+
+          try {
+            const response = await axios.get(
+              `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${API_KEY}`,
+            );
+
+            if (response.data.status === 'OK') {
+              const location = response.data.results[0].geometry.location;
+              const latitude = location.lat;
+              const longitude = location.lng;
+              locations.push({
+                latitude: location.lat,
+                longitude: location.lng,
+                title: event.name, // Assuming event name for marker title
+                description: event.description, // Assuming description for marker description
+                eventDetails: event, // Store the full event object for displaying in the modal
+              });
+            } else {
+              setErrorMessage('Unable to fetch coordinates for one or more addresses.');
+            }
+          } catch (error) {
+            setErrorMessage('An error occurred while fetching coordinates.');
+            console.error('Error fetching coordinates:', error);
           }
-        } catch (error) {
-          setErrorMessage("An error occurred while fetching coordinates.");
+        }
+        setRegions(locations);
+
+        if (locations.length > 0) {
+          setRegion({
+            latitude: locations[0].latitude,
+            longitude: locations[0].longitude,
+            latitudeDelta: 0.1,
+            longitudeDelta: 0.1,
+          });
         }
       }
-      setRegions(locations);
-      if (locations.length > 0) {
-        setRegion({
-          latitude: locations[0].latitude,
-          longitude: locations[0].longitude,
-          latitudeDelta: 0.1,
-          longitudeDelta: 0.1,
-        });
-      }
     };
-    getCoordinates();
-  }, []);
+
+    if (events) {
+      getCoordinates();
+    }
+  }, [events]);
+
+  // Handle loading and error states
+  if (isLoading) {
+    return (
+      <View style={styles.loading}>
+        <Text>Loading events...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.loading}>
+        <Text>Error loading events: {error.message}</Text>
+      </View>
+    );
+  }
+
+  const handleMarkerPress = (event) => {
+    setSelectedEvent(event);
+    setModalVisible(true); // Show the modal when a marker is clicked
+  };
 
   return (
     <View style={styles.container}>
@@ -64,20 +97,18 @@ const MapScreen = () => {
             style={styles.map}
             region={region}
             onRegionChangeComplete={(newRegion) => setRegion(newRegion)}
-            clusterRadius={60} // Adjust this if necessary
-            renderCluster={(cluster) => {
-              return (
-                <Marker
-                  key={cluster.id}
-                  coordinate={cluster.coordinate}
-                  onPress={cluster.onPress}
-                >
-                  <View style={[styles.clusterContainer, { backgroundColor: 'blue' }]}>
-                    <Text style={styles.clusterText}>{cluster.pointCount}</Text>
-                  </View>
-                </Marker>
-              );
-            }}
+            clusterRadius={60}
+            renderCluster={(cluster) => (
+              <Marker
+                key={cluster.id}
+                coordinate={cluster.coordinate}
+                onPress={cluster.onPress}
+              >
+                <View style={[styles.clusterContainer, { backgroundColor: 'blue' }]}>
+                  <Text style={styles.clusterText}>{cluster.pointCount}</Text>
+                </View>
+              </Marker>
+            )}
           >
             {regions.map((region, index) => (
               <Marker
@@ -85,9 +116,11 @@ const MapScreen = () => {
                 coordinate={{ latitude: region.latitude, longitude: region.longitude }}
                 title={region.title}
                 description={region.description}
+                onPress={() => handleMarkerPress(region.eventDetails)} // Handle marker press
               />
             ))}
           </ClusteredMapView>
+
           <View style={styles.controls}>
             <TouchableOpacity
               style={styles.zoomButton}
@@ -117,8 +150,30 @@ const MapScreen = () => {
         </>
       ) : (
         <View style={styles.loading}>
-          <Text>{errorMessage || "Loading map..."}</Text>
+          <Text>{errorMessage || 'Loading map...'}</Text>
         </View>
+      )}
+
+      {/* Event Details Modal */}
+      {selectedEvent && (
+        <Modal
+          visible={modalVisible}
+          animationType="slide"
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>{selectedEvent.eventName}</Text>
+            <Text style={styles.modalText}>{selectedEvent.description}</Text>
+            <Text style={styles.modalText}>Category: {selectedEvent.category}</Text>
+            <Text style={styles.modalText}>Date: {new Date(selectedEvent.date).toLocaleString()}</Text>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
       )}
     </View>
   );
@@ -132,46 +187,71 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   controls: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 30,
     right: 10,
-    flexDirection: "column",
+    flexDirection: 'column',
   },
   zoomButton: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 10,
   },
   zoomText: {
-    color: "white",
+    color: 'white',
     fontSize: 20,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   loading: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   clusterContainer: {
     width: 60,
     height: 60,
-    borderRadius: 30,  // Ensures a perfect circle
-    backgroundColor: "blue",  // Blue circle
-    justifyContent: "center",
-    alignItems: "center",
+    borderRadius: 30,
+    backgroundColor: 'blue',
+    justifyContent: 'center',
+    alignItems: 'center',
     borderWidth: 2,
-    borderColor: "white",  // Optional white border
-    overflow: "hidden",  // Ensures no overflow
+    borderColor: 'white',
+    overflow: 'hidden',
   },
   clusterText: {
-    color: "white",
+    color: 'white',
     fontSize: 18,
-    fontWeight: "bold",
-    textAlign: "center",
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 5,
+  },
+  closeButton: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: 'blue',
+    borderRadius: 5,
+  },
+  closeButtonText: {
+    color: 'white',
+    fontSize: 16,
   },
 });
 
@@ -179,64 +259,3 @@ export default MapScreen;
 
 
 
-
-// import React from 'react';
-// import { StyleSheet, View } from 'react-native';
-// import MapView, { Marker } from 'react-native-maps';
-
-// const MapScreen = () => {
-//   const region = {
-//     latitude: 37.7749, // Default latitude (San Francisco as an example)
-//     longitude: -122.4194, // Default longitude
-//     latitudeDelta: 0.1,
-//     longitudeDelta: 0.1,
-//   };
-
-//   const pointsOfInterest = [
-//     {
-//       id: '1',
-//       title: 'Golden Gate Bridge',
-//       description: 'Famous bridge in San Francisco.',
-//       latitude: 37.8199,
-//       longitude: -122.4783,
-//     },
-//     {
-//       id: '2',
-//       title: 'Alcatraz Island',
-//       description: 'Historic prison island.',
-//       latitude: 37.8267,
-//       longitude: -122.4230,
-//     },
-//     {
-//       id: '3',
-//       title: 'Union Square',
-//       description: 'Shopping and dining district.',
-//       latitude: 37.7880,
-//       longitude: -122.4075,
-//     },
-//   ];
-
-//   return (
-//     <View style={styles.container}>
-//       <MapView
-//         style={styles.map}
-//         initialRegion={region}
-//         showsUserLocation
-//         showsMyLocationButton
-//         showsPointsOfInterest
-//       >
-//         {pointsOfInterest.map((poi) => (
-//           <Marker
-//             key={poi.id}
-//             coordinate={{
-//               latitude: poi.latitude,
-//               longitude: poi.longitude,
-//             }}
-//             title={poi.title}
-//             description={poi.description}
-//           />
-//         ))}
-//       </MapView>
-//     </View>
-//   );
-// };
