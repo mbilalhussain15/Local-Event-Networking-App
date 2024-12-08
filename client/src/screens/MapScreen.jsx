@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Modal } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import axios from 'axios';
 import { MAP_API_KEY } from '@env';
@@ -10,6 +10,8 @@ const MapScreen = () => {
   const [regions, setRegions] = useState([]);
   const [region, setRegion] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null); // Store selected event details for popup
+  const [modalVisible, setModalVisible] = useState(false); // Control modal visibility
 
   // Fetch events from the Redux store using the `useGetEventsQuery` hook
   const { data: events, error, isLoading } = useGetEventsQuery();
@@ -22,25 +24,22 @@ const MapScreen = () => {
         const locations = [];
         for (let event of events) {
           const address = `${event.location.streetAddress}, ${event.location.postalCode} ${event.location.city}, ${event.location.country}`;
-          console.log(address);  // Log the address for debugging
 
           try {
             const response = await axios.get(
               `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${API_KEY}`,
-
             );
 
             if (response.data.status === 'OK') {
               const location = response.data.results[0].geometry.location;
               const latitude = location.lat;
               const longitude = location.lng;
-
-              console.log(`Coordinates for ${address}:`, { latitude, longitude });
               locations.push({
                 latitude: location.lat,
                 longitude: location.lng,
                 title: event.name, // Assuming event name for marker title
                 description: event.description, // Assuming description for marker description
+                eventDetails: event, // Store the full event object for displaying in the modal
               });
             } else {
               setErrorMessage('Unable to fetch coordinates for one or more addresses.');
@@ -85,6 +84,11 @@ const MapScreen = () => {
     );
   }
 
+  const handleMarkerPress = (event) => {
+    setSelectedEvent(event);
+    setModalVisible(true); // Show the modal when a marker is clicked
+  };
+
   return (
     <View style={styles.container}>
       {regions.length > 0 && region ? (
@@ -112,6 +116,7 @@ const MapScreen = () => {
                 coordinate={{ latitude: region.latitude, longitude: region.longitude }}
                 title={region.title}
                 description={region.description}
+                onPress={() => handleMarkerPress(region.eventDetails)} // Handle marker press
               />
             ))}
           </ClusteredMapView>
@@ -147,6 +152,28 @@ const MapScreen = () => {
         <View style={styles.loading}>
           <Text>{errorMessage || 'Loading map...'}</Text>
         </View>
+      )}
+
+      {/* Event Details Modal */}
+      {selectedEvent && (
+        <Modal
+          visible={modalVisible}
+          animationType="slide"
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>{selectedEvent.eventName}</Text>
+            <Text style={styles.modalText}>{selectedEvent.description}</Text>
+            <Text style={styles.modalText}>Category: {selectedEvent.category}</Text>
+            <Text style={styles.modalText}>Date: {new Date(selectedEvent.date).toLocaleString()}</Text>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
       )}
     </View>
   );
@@ -201,6 +228,34 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 5,
+  },
+  closeButton: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: 'blue',
+    borderRadius: 5,
+  },
+  closeButtonText: {
+    color: 'white',
+    fontSize: 16,
+  },
 });
 
 export default MapScreen;
+
+
+
