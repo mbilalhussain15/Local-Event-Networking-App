@@ -19,13 +19,22 @@ export const eventApiSlice = apiSlice.injectEndpoints({
         url: `${EVENT_URL}/getEvents`,
         method: "GET",
         credentials: "include",
+        // Disable caching in RTK Query
+        headers: {
+          'Cache-Control': 'no-cache',
+        },
       }),
+      // Optionally, disable caching in RTK query (this will re-fetch data every time)
+      provideTags: ['EventList'],
+      keepUnusedDataFor: 0, // This will prevent data from being cached
     }),
+    
     getEventById: builder.query({
       query: (id) => ({
         url: `${EVENT_URL}/getEventById/${id}`,
         method: "GET",
         credentials: "include",
+        
       }),
     }),
     updateEvent: builder.mutation({
