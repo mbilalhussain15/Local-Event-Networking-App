@@ -16,6 +16,9 @@ import { UserContext } from '../context/UserContext';
 import { useUpdateUserMutation } from "../redux/slices/api/authApiSlice.js";
 import DeviceInfo from 'react-native-device-info';
 import NetInfo from '@react-native-community/netinfo';  
+import { use } from 'i18next';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const ProfileScreen = ({ navigation }) => {
 
@@ -28,6 +31,16 @@ const ProfileScreen = ({ navigation }) => {
       </View>
     );
   }
+  useEffect(() => {
+    const updateProfileInStorage = async () => {
+      if (user) {
+        await AsyncStorage.setItem('user', JSON.stringify(user)); // Save the updated user
+      }
+    };
+
+    updateProfileInStorage();
+  }, [user]);
+
   const [profile, setProfile] = useState({
     firstName: user?.user?.firstName || 'N/A',
     lastName: user?.user?.lastName || 'N/A',
@@ -35,11 +48,10 @@ const ProfileScreen = ({ navigation }) => {
     phone: user?.user?.phone || 'N/A',
     profileImage:  user?.user?.profileImage || null,
   });
-
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEditModalVisible, setEditModalVisible] = useState(false);
   const [updatedProfile, setUpdatedProfile] = useState({ ...profile });
   const [updateUser] = useUpdateUserMutation();
-
 
 const getDeviceIp = async () => {
   try {
@@ -120,7 +132,7 @@ useEffect(() => {
     try {
       const response = await updateUser({ id: user.user._id, data: formData }).unwrap();
       setProfile(response.user);
-      setUser(response.user); 
+      setUser({ ...user, user: response.user });
       setEditModalVisible(false);
       Alert.alert("Success", "Profile updated successfully.");
     } catch (error) {
@@ -131,7 +143,8 @@ useEffect(() => {
   
 
   const handleImageSelect = async () => {
-    const permissionStatus = await request(PERMISSIONS.ANDROID.CAMERA); 
+    const permissionStatus = await request(PERMISSIONS.ANDROID.CAMERA);
+    const galleryPermission = await request(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE); 
     if (permissionStatus === RESULTS.GRANTED) {
       Alert.alert('Select Image', 'Choose from Gallery or Camera', [
         {
@@ -159,6 +172,15 @@ useEffect(() => {
     }
   };
 
+  useEffect(() => {
+    if (isEditModalVisible) {
+      // Initialize the updatedProfile.profileImage with profile's image or default value
+      setUpdatedProfile((prevState) => ({
+        ...prevState,
+        profileImage: profile.profileImage || null, // If no profile image, set null
+      }));
+    }
+  }, [isEditModalVisible]); // This effect triggers when modal visibility changes
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -218,14 +240,24 @@ useEffect(() => {
             <Text style={styles.modalTitle}>Edit Profile</Text>
 
             <TouchableOpacity onPress={handleImageSelect}>
-              <Image
+            <Image
+  source={
+    updatedProfile.profileImage // First check if a new or updated image exists
+      ? { uri: updatedProfile.profileImage }
+      : profile.profileImage // If no updated image, check the profile image from the server
+        ? { uri: profile.profileImage }
+        : require('../assets/default-profile.png') // If neither, show the default image
+  }
+  style={[styles.profileImage, styles.modalProfileImage]}
+/>
+              {/* <Image
                 source={
                   updatedProfile.profileImage
                     ? { uri: updatedProfile.profileImage }
                     : require('../assets/default-profile.png')
                 }
                 style={[styles.profileImage, styles.modalProfileImage]}
-              />
+              /> */}
             </TouchableOpacity>
 
             <Text style={styles.label}>First Name:</Text>

@@ -49,6 +49,30 @@ export const authApiSlice = apiSlice.injectEndpoints({
         credentials: "include",
       }),
     }),
+    updateUserLanguage: builder.mutation({
+      query: ({ userId, language }) => ({
+        url: `${USER_URL}/${userId}/language`,
+        method: "PUT",
+        body: { language },
+        credentials: "include",
+      }),
+    }),
+    updatePassword: builder.mutation({
+      query: ({ userId, data }) => ({
+        url: `${USER_URL}/updatePassword/${userId}`,
+        method: "PUT",
+        body: data,
+        credentials: "include",
+      }),
+    }),
+    logout: builder.mutation({
+      query: () => ({
+        url: `${USER_URL}/logout`,
+        method: "POST",
+        credentials: "include",
+      }),
+    }),
+    
   }),
 });
 
@@ -59,4 +83,7 @@ export const {
   useGetUserByIdQuery,
   useUpdateUserMutation,
   useDeleteUserByIdMutation,
+  useUpdateUserLanguageMutation,
+  useUpdatePasswordMutation,
+  useLogoutMutation, 
 } = authApiSlice;

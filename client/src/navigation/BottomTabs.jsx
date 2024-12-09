@@ -54,9 +54,7 @@ const BottomTabs = () => {
               iconName = focused ? 'calendar' : 'calendar-outline';
             } else if (route.name === 'Map') {
               iconName = focused ? 'map' : 'map-outline';
-            } else if (route.name === 'Profile') {
-              iconName = focused ? 'person' : 'person-outline';
-            } else if (route.name === 'Settings') {
+            }  else if (route.name === 'Settings') {
               iconName = focused ? 'settings' : 'settings-outline';
             }
 
@@ -71,7 +69,6 @@ const BottomTabs = () => {
         <Tab.Screen name="Home" component={HomeScreen} />
         <Tab.Screen name="Events" component={EventsStackNavigator} />
         <Tab.Screen name="Map" component={MapScreen} />
-        <Tab.Screen name="Profile" component={ProfileScreen} />
 
         <Tab.Screen
           name="Settings"
