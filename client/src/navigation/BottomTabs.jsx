@@ -1,16 +1,34 @@
 import React, { useState } from 'react';
-import { TouchableOpacity, Text, StyleSheet, View, Dimensions } from 'react-native';
+import { TouchableOpacity, Text } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/Ionicons';
 import SettingsModal from '../components/SettingsModal'; // Import the modal component
 
 import HomeScreen from '../screens/HomeScreen';
 import EventsScreen from '../screens/EventsScreen';
+import EventDetailsScreen from '../screens/EventDetailsScreen';
 import MapScreen from '../screens/MapScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import SettingScreen from '../screens/SettingScreen';
 
 const Tab = createBottomTabNavigator();
+const EventsStack = createStackNavigator();
+
+const EventsStackNavigator = () => (
+  <EventsStack.Navigator>
+    <EventsStack.Screen 
+      name="Events" 
+      component={EventsScreen} 
+      options={{ headerShown: false }} 
+    />
+    <EventsStack.Screen 
+      name="EventDetails" 
+      component={EventDetailsScreen} 
+      options={{ title: 'Event Details' }} 
+    />
+  </EventsStack.Navigator>
+);
 
 const BottomTabs = () => {
   const [isSettingsVisible, setSettingsVisible] = useState(false);
@@ -51,7 +69,7 @@ const BottomTabs = () => {
         })}
       >
         <Tab.Screen name="Home" component={HomeScreen} />
-        <Tab.Screen name="Events" component={EventsScreen} />
+        <Tab.Screen name="Events" component={EventsStackNavigator} />
         <Tab.Screen name="Map" component={MapScreen} />
         <Tab.Screen name="Profile" component={ProfileScreen} />
 
