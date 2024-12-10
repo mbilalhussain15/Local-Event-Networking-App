@@ -1,10 +1,8 @@
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import CategoryList from '../components/CategoryList';
+import AddEventCard from '../components/AddEventCard';
 import Header from '../components/Header';
 import EventCard from '../components/HomeEventCard';
-import InviteCard from '../components/InviteCard';
-import SearchBar from '../components/SearchBar';
 
 const events = [
   {
@@ -99,8 +97,6 @@ const ExploreScreen = () => {
         onNotificationPress={handleNotificationPress} 
         onSpeechPress={handleSpeechPress} 
       />
-      <SearchBar placeholder="Search..." />
-      <CategoryList style={styles.categoryList} />
       <ScrollView style={styles.content}>
         <Text style={styles.sectionTitle}>Upcoming Events</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -119,7 +115,7 @@ const ExploreScreen = () => {
             ))}
           </View>
         </ScrollView>
-        <InviteCard />
+        <AddEventCard />
       </ScrollView>
     </View>
   );
@@ -132,12 +128,6 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 15,
-  },
-  categoryList: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 10,
   },
   sectionTitle: {
     fontSize: 18,
