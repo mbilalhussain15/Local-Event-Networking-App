@@ -1,21 +1,12 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 const Header = ({ onNotificationPress, onSpeechPress }) => (
   <View style={styles.header}>
     {/* App Name */}
-    <Text style={styles.title}>Event In</Text>
+    <Text style={styles.title}>Home</Text>
 
     <View style={styles.icons}>
-      {/* Notification Icon */}
-      <TouchableOpacity style={styles.icon} onPress={onNotificationPress}>
-        <Text style={styles.iconText}>🔔</Text>
-      </TouchableOpacity>
-
-      {/* Text-to-Speech Icon */}
-      <TouchableOpacity style={styles.icon} onPress={onSpeechPress}>
-        <Text style={styles.iconText}>🎤</Text>
-      </TouchableOpacity>
     </View>
   </View>
 );
