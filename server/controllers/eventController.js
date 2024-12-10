@@ -9,19 +9,17 @@ export const createEvent = async (req, res) => {
             category,
             maxCapacity,
             registration_required,
-            contact_email,
             is_virtual,
-            created_by,
+            user_id, // Changed from created_by to user_id
             date,
-            // date date date
             location, // Accept location object
         } = req.body;
 
-        // Validate location
-        if (!location || !location.venueName || !location.latitude || !location.longitude) {
+        // Validate location (latitude and longitude are no longer needed)
+        if (!location || !location.venueName || !location.streetAddress || !location.city || !location.state || !location.postalCode || !location.country) {
             return res.status(400).json({
                 success: false,
-                message: "Location details are required and must include venueName, latitude, and longitude.",
+                message: "Location details are required and must include venueName, streetAddress, city, state, postalCode, and country.",
             });
         }
 
@@ -31,11 +29,11 @@ export const createEvent = async (req, res) => {
             category,
             maxCapacity,
             registration_required,
-            contact_email,
             is_virtual,
-            created_by,
+            user_id, // Changed from created_by to user_id
             date,
             location, // Save location details
+            createdAt: Date.now(), // Adding createdAt attribute
         });
 
         const savedEvent = await newEvent.save();
@@ -48,6 +46,8 @@ export const createEvent = async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 };
+
+
 
 // Update event (location can be updated here too)
 export const updateEvent = async (req, res) => {

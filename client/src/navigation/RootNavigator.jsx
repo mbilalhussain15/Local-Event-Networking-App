@@ -5,6 +5,7 @@ import LoginScreen from '../screens/LoginScreen';
 import RegistrationScreen from '../screens/RegistrationScreen';
 import BottomTabs from './BottomTabs'; // Your tab navigator
 import ProfileScreen from '../screens/ProfileScreen';
+import EventDetailsScreen from '../screens/EventDetailsScreen';
 
 const Stack = createStackNavigator();
 
@@ -18,6 +19,7 @@ const RootNavigator = ({ isAuthenticated }) => {
       <Stack.Screen name="RegisterScreen" component={RegistrationScreen} />
       <Stack.Screen name="Main" component={BottomTabs} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
+      <Stack.Screen name="eventDetails" component={EventDetailsScreen} />
     </Stack.Navigator>
   );
 };

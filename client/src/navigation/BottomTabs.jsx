@@ -67,7 +67,7 @@ const BottomTabs = () => {
         })}
       >
         <Tab.Screen name="Home" component={HomeScreen} />
-        <Tab.Screen name="Events" component={EventsStackNavigator} />
+        <Tab.Screen name="Events" component={EventsScreen} />
         <Tab.Screen name="Map" component={MapScreen} />
 
         <Tab.Screen
