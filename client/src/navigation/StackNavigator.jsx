@@ -22,7 +22,7 @@ const StackNavigator = () => {
   }, []);
 
   if (loading) {
-    return null; // Or a loading spinner component
+    return null;
   }
 
   return (
