@@ -3,7 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import HomeDrawer from './HomeDrawer';
 
-const Header = () => {
+const EventsHeader = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const toggleDrawer = () => {
@@ -18,7 +18,7 @@ const Header = () => {
       </TouchableOpacity>
 
       {/* Centered Title */}
-      <Text style={styles.title}>Home</Text>
+      <Text style={styles.title}>Event List</Text>
 
       {/* Placeholder for right alignment (if needed in future) */}
       <View style={styles.rightPlaceholder}></View>
@@ -53,4 +53,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Header;
+export default EventsHeader;
