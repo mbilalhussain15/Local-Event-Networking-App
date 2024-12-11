@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  Linking,
   View,
 } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
@@ -49,6 +50,22 @@ const updateImageUrlForPlatform = async (url) => {
 
 const EventDetailsScreen = ({ route, navigation }) => {
   const { t } = useTranslation();  // Use translation hook
+
+  const handlePhonePress = (phone) => {
+    if (phone) {
+      const url = `tel:${phone}`;
+      Linking.openURL(url).catch(err => console.error('Error opening dialer: ', err));
+    }
+  };
+
+  const handleEmailPress = (email) => {
+    if (email) {
+      const url = `mailto:${email}`;
+      Linking.openURL(url).catch(err => console.error('Error opening email client: ', err));
+    }
+  };
+
+
   const { eventId } = route.params;
 
   // Fetch event details
@@ -189,8 +206,16 @@ const EventDetailsScreen = ({ route, navigation }) => {
             <Text style={styles.label}>
               {user.user.firstName} {user.user.lastName}
             </Text>
-            <Text style={styles.subLabel}>{user.user.email}</Text>
-            <Text style={styles.subLabel}>{user.user.phone}</Text>
+            <TouchableOpacity onPress={() => handleEmailPress(user.user.email)} >
+              <Text style={styles.subLabel}>{user.user.email}</Text>
+            </TouchableOpacity>
+            {user.user.phone ? (
+              <TouchableOpacity onPress={() => handlePhonePress(user.user.phone)}>
+                <Text style={styles.subLabel}>{user.user.phone}</Text>
+              </TouchableOpacity>
+                  ) : (
+                    <Text style={styles.subLabel}></Text>
+                  )}
           </View>
         </View>
 
@@ -204,14 +229,17 @@ const EventDetailsScreen = ({ route, navigation }) => {
         style={styles.button}
         onPress={() => setIsPopupVisible(true)}
       >
+
         <Text style={styles.buttonText}>
           {t('Buy Ticket')} ${event.ticketPrice} 
         </Text>
+
       </TouchableOpacity>
       <PaymentPopup
+        event={event}
+        user={user.user}
         isVisible={isPopupVisible}
         onClose={() => setIsPopupVisible(false)}
-        ticketPrice={event.ticketPrice}
       />
     </ScrollView>
   );
@@ -261,8 +289,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   subLabel: {
-    fontSize: 14,
+    fontSize: 15,
     color: '#666',
+    cursor: 'pointer',
   },
   organizerImage: {
     width: 40,

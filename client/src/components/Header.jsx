@@ -13,6 +13,7 @@ const Header = ({ onNotificationPress, onSpeechPress }) => {
       <View style={styles.icons}>
         {/* You can add the notification and speech buttons here */}
       </View>
+
     </View>
   );
 };
@@ -24,23 +25,20 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    position: 'relative', // Allows absolute positioning of the title
+  },
+  leftIcon: {
+    position: 'absolute',
+    left: 20,
+    zIndex: 10,
   },
   title: {
     color: '#FFFFFF',
-    fontSize: 20,
+    fontSize: 25,
     fontWeight: 'bold',
-  },
-  icons: {
-    flexDirection: 'row',
-  },
-  icon: {
-    marginLeft: 15,
-  },
-  iconText: {
-    fontSize: 24,
-    color: '#FFFFFF',
+    textAlign: 'center',
+    flex: 1,
   },
 });
 

@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const ticketSchema = new mongoose.Schema({
-    ticketType: { type: String, enum: ['Normal', 'VIP'], required: true },
+    ticketType: { type: String, enum: ['Standard', 'VIP'], required: true },
     price: { type: Number, required: true },
     currency: { type: String, default: 'EUR' },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },

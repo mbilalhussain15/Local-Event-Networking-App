@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
     Alert,
     Modal,
     StyleSheet,
@@ -9,34 +10,45 @@ import {
     View,
 } from 'react-native';
 import Sound from 'react-native-sound';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import ArrowBack from 'react-native-vector-icons/MaterialIcons'; 
+import { useCreateTicketMutation } from '../redux/slices/api/ticketApiSlice';
+import { useCreateInitiatePaymentMutation, useCreateSimulatePaymentMutation } from '../redux/slices/api/paymentApiSlice';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
-const PaymentPopup = ({ isVisible, onClose, ticketPrice }) => {
+const PaymentPopup = ({event, user, isVisible, onClose }) => {
   const [step, setStep] = useState(1);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState(null);
+  const [transactionId, setTransactionId] = useState(null);
   const [creditCardDetails, setCreditCardDetails] = useState({
     name: '',
     cardNumber: '',
     expiryDate: '',
     cvv: '',
   });
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [createTicket] = useCreateTicketMutation();
+  const [initiatePayment] = useCreateInitiatePaymentMutation();
+  const [simulatePayment] = useCreateSimulatePaymentMutation(); 
 
   useEffect(() => {
     if (isVisible) {
-      setStep(1); // Reset to the first step whenever the popup is reopened
-      setSelectedTicket(null); // Clear the selected ticket
-      setPaymentMethod(null); // Clear the payment method
+      setStep(1); 
+      setSelectedTicket(null); 
+      setPaymentMethod(null); 
       setCreditCardDetails({
         name: '',
         cardNumber: '',
         expiryDate: '',
         cvv: '',
-      }); // Clear credit card details
+      }); 
     }
   }, [isVisible]);
 
   useEffect(() => {
-    if (step === 3) {
+    if (step === 1) {
       playSuccessSound();
     }
   }, [step]);
@@ -48,43 +60,149 @@ const PaymentPopup = ({ isVisible, onClose, ticketPrice }) => {
         return;
       }
       sound.play(() => {
-        sound.release(); // Release the sound instance after playback
+        sound.release(); 
       });
     });
   };
 
-  const handlePayNow = () => {
-    if (paymentMethod === 'creditCard') {
+  const userId= event.user_id;
+  const eventId= event._id;
+  const handlePayNow = async () => {
+
+    if (paymentMethod === 'CreditCard') {
       const { name, cardNumber, expiryDate, cvv } = creditCardDetails;
       if (!name || !cardNumber || !expiryDate || !cvv) {
         Alert.alert('Error', 'Please fill all credit card details.');
         return;
       }
     }
-    setStep(3); // Proceed to the success message
+    setIsLoading(true);
+    try {
+      
+      const ticketData = {
+        ticketType: selectedTicket,
+        userId,
+        eventId,
+      };
+      const ticketResponse = await createTicket(ticketData).unwrap();
+
+      const ticketId = ticketResponse?.ticket._id;
+      const ticketPrice = ticketResponse?.ticket.price;
+      if (!ticketId) throw new Error('Failed to create ticket.');
+      
+      
+      const paymentData = {
+        paymentMethod,
+        userId,
+        ticketId,
+      };
+     
+      const paymentResponse = await initiatePayment(paymentData).unwrap();
+
+      if (!paymentResponse?.success) throw new Error('Payment initiation failed.');
+
+     
+      const paymentDetails = {
+        userId,
+        ticketId,
+        eventId,
+        amount: ticketPrice,
+        paymentMethod,
+      };
+      const simulateResponse = await simulatePayment({paymentDetails}).unwrap();
+      setTransactionId(simulateResponse?.transactionId)
+      if (!simulateResponse?.success) throw new Error('Payment simulation failed.');
+
+      setStep(4); 
+
+    } catch (error) {
+      console.error('Payment process failed:', error);
+      Alert.alert('Error', error.data.error || 'An error occurred during payment.');
+    }
+    finally {
+      setIsLoading(false);
+    }
   };
+
 
   const handleBack = () => {
     if (step > 1) {
-      setStep((prevStep) => prevStep - 1); // Go back to the previous step
+      setStep((prevStep) => prevStep - 1); 
     }
+  };
+
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [expiryDate, setExpiryDate] = useState('');
+  
+  
+  const handleConfirm = (date) => {
+   
+    const month = date.getMonth() + 1; 
+    const year = date.getFullYear().toString().slice(-2);
+    setExpiryDate(`${month < 10 ? `0${month}` : month}/${year}`);
+    hideDatePicker();
+  };
+
+  
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
+
+  
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
   };
 
   return (
     <Modal visible={isVisible} transparent={true} animationType="slide">
       <View style={styles.modalContainer}>
         <View style={styles.popupContainer}>
-          {/* Close (X) Button */}
+          
+          <View style={styles.stepIndicatorContainer}>
+            {['1', '2', '3', '4'].map((item, index) => (
+              <React.Fragment key={index}>
+                <View
+                  style={[
+                    styles.stepIndicator,
+                    step >= index + 1 && styles.activeStepIndicator,
+                  ]}>
+                  {step > index + 1 ? (
+                    
+                    <Icon name="check" size={20} color="white" />
+                  ) : (
+                   
+                    <Text
+                      style={[
+                        styles.stepText,
+                        step === index + 1 && styles.activeStepText,
+                      ]}>
+                      {item}
+                    </Text>
+                  )}
+                </View>
+                {index < 3 && (
+                  <View
+                    style={[
+                      styles.stepLine,
+                      step > index + 1 && styles.activeStepLine,
+                    ]}
+                  />
+                )}
+              </React.Fragment>
+            ))}
+          </View>
+
           {step === 1 && (
             <TouchableOpacity style={styles.closeButton} onPress={onClose}>
               <Text style={styles.closeButtonText}>X</Text>
             </TouchableOpacity>
           )}
-          {/* Back Arrow */}
-          {step > 1 && (
+          
+          {(step > 1 && step < 4) && (
             <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-              <Text style={styles.backButtonText}>←</Text>
+              <ArrowBack style={styles.backButtonText} name="arrow-back" size={24} fontWeight="bold" />
             </TouchableOpacity>
+
           )}
           {step === 1 && (
             <>
@@ -92,18 +210,18 @@ const PaymentPopup = ({ isVisible, onClose, ticketPrice }) => {
               <TouchableOpacity
                 style={[
                   styles.optionButton,
-                  selectedTicket === 'standard' && styles.selectedOption,
+                  selectedTicket === 'Standard' && styles.selectedOption,
                 ]}
-                onPress={() => setSelectedTicket('standard')}>
-                <Text>Standard Ticket</Text>
+                onPress={() => setSelectedTicket('Standard')}>
+                <Text>Standard Ticket 50€</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[
                   styles.optionButton,
-                  selectedTicket === 'vip' && styles.selectedOption,
+                  selectedTicket === 'VIP' && styles.selectedOption,
                 ]}
-                onPress={() => setSelectedTicket('vip')}>
-                <Text>VIP Ticket</Text>
+                onPress={() => setSelectedTicket('VIP')}>
+                <Text>VIP Ticket 100€</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.nextButton}
@@ -114,66 +232,158 @@ const PaymentPopup = ({ isVisible, onClose, ticketPrice }) => {
           )}
           {step === 2 && (
             <>
-              <Text style={styles.title}>Payment Details</Text>
+              <Text style={styles.title}>Payment Method</Text>
               <TouchableOpacity
                 style={[
                   styles.optionButton,
-                  paymentMethod === 'paypal' && styles.selectedOption,
+                  paymentMethod === 'Paypal' && styles.selectedOption,
                 ]}
-                onPress={() => setPaymentMethod('paypal')}>
+                onPress={() => setPaymentMethod('Paypal')}>
                 <Text>PayPal</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[
                   styles.optionButton,
-                  paymentMethod === 'creditCard' && styles.selectedOption,
+                  paymentMethod === 'Stripe' && styles.selectedOption,
                 ]}
-                onPress={() => setPaymentMethod('creditCard')}>
+                onPress={() => setPaymentMethod('Stripe')}>
+                <Text>Stripe</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.optionButton,
+                  paymentMethod === 'CreditCard' && styles.selectedOption,
+                ]}
+                onPress={() => setPaymentMethod('CreditCard')}>
                 <Text>Credit Card</Text>
               </TouchableOpacity>
-              {paymentMethod === 'creditCard' && (
-                <View>
-                  <TextInput
-                    placeholder="Name"
-                    style={styles.input}
-                    onChangeText={(text) =>
-                      setCreditCardDetails({ ...creditCardDetails, name: text })
-                    }
-                  />
-                  <TextInput
-                    placeholder="Card Number"
-                    style={styles.input}
-                    keyboardType="numeric"
-                    onChangeText={(text) =>
-                      setCreditCardDetails({ ...creditCardDetails, cardNumber: text })
-                    }
-                  />
-                  <TextInput
-                    placeholder="Expiry Date (MM/YY)"
-                    style={styles.input}
-                    onChangeText={(text) =>
-                      setCreditCardDetails({ ...creditCardDetails, expiryDate: text })
-                    }
-                  />
-                  <TextInput
-                    placeholder="CVV"
-                    style={styles.input}
-                    keyboardType="numeric"
-                    onChangeText={(text) =>
-                      setCreditCardDetails({ ...creditCardDetails, cvv: text })
-                    }
-                  />
-                  <Text style={styles.priceText}>Price: ${ticketPrice}</Text>
-                </View>
+              {paymentMethod === 'CreditCard' && (
+       <View style={styles.creditCardInput}>
+       <TextInput
+         placeholder="Card Holder Name"
+         style={styles.input}
+         value={creditCardDetails.name}
+         onChangeText={(text) => {
+           const filteredText = text.replace(/[^a-zA-Z\s]/g, ''); 
+           if (filteredText !== text) {
+             Alert.alert('Name should only contain alphabets.');
+           }
+           setCreditCardDetails({ ...creditCardDetails, name: filteredText });
+         }}
+       />
+     
+       <TextInput
+         placeholder="Card Number"
+         style={styles.input}
+         keyboardType="numeric"
+         value={creditCardDetails.cardNumber}
+         onChangeText={(text) => {
+           const filteredText = text.replace(/[^0-9]/g, ''); 
+           if (filteredText !== text) {
+             Alert.alert('Card number should only contain digits.');
+           }
+           setCreditCardDetails({ ...creditCardDetails, cardNumber: filteredText });
+         }}
+         maxLength={16} 
+       />
+     
+     <TouchableOpacity onPress={showDatePicker}>
+        <TextInput
+          placeholder="Expiry Date (MM/YY)"
+          style={styles.dateInput}
+          value={expiryDate}
+          editable={false} 
+        />
+      </TouchableOpacity>
+
+      
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="date"
+        date={new Date()}
+        onConfirm={handleConfirm}
+        onCancel={hideDatePicker}
+        minimumDate={new Date()} 
+        maximumDate={new Date(2099, 11, 31)} 
+        is24Hour={false} 
+        display="spinner" 
+      />
+
+     
+       <TextInput
+         placeholder="CVV"
+         style={styles.input}
+         keyboardType="numeric"
+         value={creditCardDetails.cvv}
+         onChangeText={(text) => {
+           const filteredText = text.replace(/[^0-9]/g, ''); 
+           if (filteredText !== text) {
+             Alert.alert('CVV should only contain digits.');
+           }
+           setCreditCardDetails({ ...creditCardDetails, cvv: filteredText });
+         }}
+         maxLength={4} 
+       />
+     
+       <Text style={styles.priceText}>Price: {selectedTicket === 'Standard' && '50€'}
+                  {selectedTicket === 'VIP' && '100€'}
+                  {!['Standard', 'VIP'].includes(selectedTicket)}</Text>
+     </View>
+     
+        
               )}
-              <TouchableOpacity style={styles.nextButton} onPress={handlePayNow}>
-                <Text style={styles.buttonText}>Pay Now</Text>
+              <TouchableOpacity
+                style={styles.nextButton}
+                onPress={() => paymentMethod && setStep(3)}>
+                <Text style={styles.buttonText}>Next</Text>
               </TouchableOpacity>
             </>
           )}
           {step === 3 && (
+            
+            <View style={styles.paymentDetailsContainer}>
+              <Text style={styles.paymentTitle}>Confirm Your Payment</Text>
+              <View style={styles.paymentInfoRow}>
+                <Text style={styles.paymentlabel}>User Name:</Text>
+                <Text style={styles.paymentvalue}>{user.firstName} {user.lastName}</Text>
+              </View>
+              <View style={styles.paymentInfoRow}>
+                <Text style={styles.paymentlabel}>Event Name:</Text>
+                <Text style={styles.paymentvalue}>{event.eventName}</Text>
+              </View>
+              <View style={styles.paymentInfoRow}>
+                <Text style={styles.paymentlabel}>Ticket Type:</Text>
+                <Text style={styles.paymentvalue}>{selectedTicket}</Text>
+              </View>
+              <View style={styles.paymentInfoRow}>
+                <Text style={styles.paymentlabel}>Payment Method:</Text>
+                <Text style={styles.paymentvalue}>{paymentMethod}</Text>
+              </View>
+              <View style={styles.dividerLine} />
+              <View style={styles.paymentInfoRow}>
+              <Text style={styles.paymentlabel}>Amount:</Text>
+                <Text style={styles.paymentvalue}>
+                  {selectedTicket === 'Standard' && '50€'}
+                  {selectedTicket === 'VIP' && '100€'}
+                  {!['Standard', 'VIP'].includes(selectedTicket)}
+                </Text>
+              </View>
+              <TouchableOpacity onPress={handlePayNow} style={styles.nextButton}>
+              {isLoading ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>Pay Now</Text>
+              )}
+            </TouchableOpacity>
+            </View>
+          )}
+          {step === 4 && (
             <>
               <Text style={styles.title}>Payment Successful</Text>
+              <View style={styles.paymentInfoRow}>
+                <Text style={styles.paymentlabel}>Transaction ID:</Text>
+                <Text style={styles.paymentvalue}>{transactionId}</Text>
+              </View>
               <Text style={styles.successMessage}>
                 Congratulations! You will receive your ticket via email.
               </Text>
@@ -201,7 +411,50 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     width: '80%',
     alignItems: 'center',
-    position: 'relative', // Allow positioning of buttons
+    position: 'relative', 
+  },
+  stepIndicatorContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+    width: '100%',
+    marginTop:40
+  },
+  stepLine: {
+    flex: 1,
+    height: 2,
+    backgroundColor: '#ccc',
+    alignSelf: 'center',
+  },
+  activeStepLine: {
+    backgroundColor: '#5C3BE7',
+  },
+  checkMark: {
+  fontSize: 20,
+  color: 'white',
+  
+},
+
+  
+  stepIndicator: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    borderWidth: 2,
+    borderColor: '#ccc',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  activeStepIndicator: {
+    borderColor: '#5C3BE7',
+    backgroundColor: '#5C3BE7',
+  },
+  stepText: {
+    color: '#ccc',
+    fontWeight: 'bold',
+  },
+  activeStepText: {
+    color: '#fff',
   },
   closeButton: {
     position: 'absolute',
@@ -209,6 +462,7 @@ const styles = StyleSheet.create({
     right: 10,
     padding: 5,
     zIndex: 1,
+
   },
   closeButtonText: {
     fontSize: 20,
@@ -221,9 +475,11 @@ const styles = StyleSheet.create({
     left: 10,
     padding: 5,
     zIndex: 1,
+    color: '#5C3BE7',
+   
   },
   backButtonText: {
-    fontSize: 24,
+    fontSize: 34,
     fontWeight: 'bold',
     color: '#5C3BE7',
   },
@@ -252,6 +508,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     width: '100%',
   },
+  creditCardInput:{
+    width: '90%',
+  },
   priceText: {
     fontSize: 16,
     marginVertical: 10,
@@ -267,6 +526,9 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginTop: 20,
     alignItems: 'center',
+    width:'100%',
+    borderRadius: 20,
+
   },
   bottomCloseButton: {
     marginTop: 20,
@@ -275,10 +537,51 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
     width: '50%',
+    borderRadius: 20,
   },
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',
+  },
+
+  paymentDetailsContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 10,
+    width: '100%',
+    alignItems: 'center',
+  },
+  paymentTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  paymentInfoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: 10,
+  },
+  paymentlabel: {
+    fontWeight: 'bold',
+  },
+  paymentvalue: {
+    color: '#555',
+    
+  },
+  dividerLine: {
+    height: 1,
+    backgroundColor: '#ccc', 
+    marginVertical: 10,
+    width: '100%',
+  },
+  dateInput: {
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingLeft: 10,
+    marginBottom: 10,
   },
 });
 

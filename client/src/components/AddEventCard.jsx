@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import {
   Alert,
+
   Button,
+
   Modal,
   ScrollView,
   StyleSheet,
@@ -176,6 +178,7 @@ const AddEventCard = () => {
               value={country}
               onChangeText={setCountry}
             />
+                
             <Button title={t('addEvent.saveEvent')} onPress={handleSubmit} />
             <View style={styles.buttonSpacing}>
               <Button
@@ -183,6 +186,7 @@ const AddEventCard = () => {
                 onPress={() => setModalVisible(false)}
                 color="red"
               />
+
             </View>
           </ScrollView>
         </View>
@@ -194,7 +198,7 @@ const AddEventCard = () => {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#EAEDED',
   },
   addButton: {
     backgroundColor: '#5C3BE7',
@@ -209,15 +213,10 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: '#fff',
   },
   modalContent: {
-    backgroundColor: '#fff',
     padding: 20,
-    borderRadius: 10,
-    width: '90%',
   },
   title: {
     fontSize: 24,
@@ -239,7 +238,33 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   buttonSpacing: {
-    marginTop: 10,
+    marginTop: 20,
+  },
+  saveButton: {
+    backgroundColor: '#4CAF50', 
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginHorizontal: 100,
+
+  },
+  cancelButton: {
+    backgroundColor: '#F44336',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginHorizontal: 100,
+
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  cancelButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 
