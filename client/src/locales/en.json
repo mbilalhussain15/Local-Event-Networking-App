@@ -4,7 +4,8 @@
       "email": "Email Address",
       "password": "Password",
       "signIn": "SIGN IN",
-      "signUpPrompt": "Don't have an account? Sign up"
+      "signUpPrompt": "Don't have an account? Sign up",
+      "loggingIn": "Logging in..."
     },
     "register": {
       "title": "Sign Up",
@@ -15,8 +16,92 @@
       "confirmPassword": "Confirm Password",
       "phone": "Phone Number",
       "profileImage": "Select Profile Image",
-      "signUp": "SIGN UP",
-      "signInPrompt": "Already have an account? Sign in"
-    }
+      "signUp": "Sign Up",
+      "registering": "Registering...",
+      "alreadyHaveAccount": "Already have an account? Login"
+    },
+    
+    "explore": {
+      "upcomingEvents": "Upcoming Events"
+    },
+    "header": {
+    "home": "Home"
+    },
+
+    "addEvent": {
+    "title": "Create New Event",
+    "eventName": "Event Name",
+    "description": "Description",
+    "category": "Category",
+    "maxCapacity": "Max Capacity",
+    "totalTicketsSold": "Total Tickets Sold",
+    "registrationRequired": "Registration Required",
+    "isVirtual": "Is Virtual",
+    "contactEmail": "Contact Email",
+    "createdBy": "Created By",
+    "date": "Date (YYYY-MM-DD)",
+    "venueName": "Venue Name",
+    "streetAddress": "Street Address",
+    "city": "City",
+    "state": "State",
+    "postalCode": "Postal Code",
+    "country": "Country",
+    "saveEvent": "Save Event",
+    "cancel": "Cancel",
+    "addNewEvent": "Add New Event"
+  },
+   
+    "home": "Home",
+    "events": "Events",
+    "map": "Map",
+    "settings": "Settings",
+    "Loading details...": "Loading details...",
+    "Unable to load event or user details.": "Unable to load event or user details.",
+    "About Event": "About Event",
+    "Buy Ticket": "Buy Tickets",
+
+    "Profile": "Profile",
+    "Change Password": "Change Password",
+    "Change Language": "Change Language",
+    "Logout": "Logout",
+    "Old Password": "Old Password",
+    "New Password": "New Password",
+    "Confirm Password": "Confirm Password",
+    "Save": "Save",
+    "Search...": "Search...",
+    "Select Language": "Select Language",
+    "Please select a language.": "Please select a language.",
+    "New password and confirm password do not match.": "New password and confirm password do not match.",
+    "All fields are required.": "All fields are required.",
+    "Your password has been successfully updated.": "Your password has been successfully updated.",
+    "Failed to update password. Please try again.": "Failed to update password. Please try again.",
+    "Language updated to": "Language updated to",
+    "Failed to update language. Please try again.": "Failed to update language. Please try again.",
+    "Error": "Error",
+    "Success": "Success",
+    "Logout Successful": "Logout Successful",
+    "You have been logged out successfully.": "You have been logged out successfully.",
+    "Failed to log out. Please try again.": "Failed to log out. Please try again.",
+    "Select a language": "Select a language" ,
+
+    "profile": {
+    "back": "< Back",
+    "title": "Profile",
+    "edit": "Edit",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "phone": "Phone",
+    "editProfile": "Edit Profile",
+    "phonePlaceholder": "+491234567890",
+    "save": "Save"
+    }  
+
+    
+
+    
+    
+    
+
   }
   
