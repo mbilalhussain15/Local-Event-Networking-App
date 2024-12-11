@@ -15,6 +15,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import PaymentPopup from '../components/PaymentPopup';
 import { useGetUserByIdQuery } from '../redux/slices/api/authApiSlice';
 import { useGetEventByIdQuery } from '../redux/slices/api/eventApiSlice';
+import { useTranslation } from 'react-i18next';  // Import the translation hook
 
 // Helper function to get the device IP address
 const getDeviceIp = async () => {
@@ -64,6 +65,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
   };
 
 
+  const { t } = useTranslation();  // Use translation hook
   const { eventId } = route.params;
 
   // Fetch event details
@@ -135,7 +137,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
     return (
       <View style={styles.container}>
         <ActivityIndicator size="large" color="#5C3BE7" />
-        <Text>Loading details...</Text>
+        <Text>{t('Loading details...')}</Text> 
       </View>
     );
   }
@@ -143,7 +145,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
   if (eventError || !event || userError || !user) {
     return (
       <View style={styles.container}>
-        <Text style={styles.errorText}>Unable to load event or user details.</Text>
+        <Text style={styles.errorText}>{t('Unable to load event or user details.')}</Text> 
       </View>
     );
   }
@@ -218,7 +220,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
         </View>
 
         {/* About Event */}
-        <Text style={styles.sectionTitle}>About Event</Text>
+        <Text style={styles.sectionTitle}>{t('About Event')}</Text>
         <Text style={styles.description}>{event.description}</Text>
       </View>
 
@@ -227,7 +229,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
         style={styles.button}
         onPress={() => setIsPopupVisible(true)}
       >
-        <Text style={styles.buttonText}>BUY TICKET</Text>
+        <Text style={styles.buttonText}>{t('Buy Ticket')}</Text>
       </TouchableOpacity>
       <PaymentPopup
         event={event}
