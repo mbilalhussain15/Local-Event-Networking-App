@@ -1,8 +1,7 @@
 import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import AddEventCard from '../components/AddEventCard';
 import Header from '../components/Header';
-import EventCard from '../components/HomeEventCard';
 
 const events = [
   {
@@ -81,7 +80,6 @@ const events = [
 ];
 
 const ExploreScreen = () => {
-  // Handlers for header buttons
   const handleNotificationPress = () => {
     alert('Notifications');
   };
@@ -92,31 +90,32 @@ const ExploreScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* Updated Header with buttons */}
       <Header 
         onNotificationPress={handleNotificationPress} 
         onSpeechPress={handleSpeechPress} 
       />
       <ScrollView style={styles.content}>
         <Text style={styles.sectionTitle}>Upcoming Events</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <View style={styles.eventList}>
-            {events.map((event) => (
-              <View key={event.id} style={styles.eventCardWrapper}>
-                <EventCard
-                  eventName={event.eventName}
-                  category={event.category}
-                  image={event.image}
-                  location={event.location}
-                  description={event.description}
-                  onPress={() => alert(`Event: ${event.eventName}`)}
-                />
-              </View>
-            ))}
-          </View>
+        <ScrollView contentContainerStyle={styles.eventList} showsVerticalScrollIndicator={false}>
+          {events.map((event) => (
+            <View key={event.id} style={styles.eventCardWrapper}>
+              <Image source={{ uri: event.image }} style={styles.eventImage} />
+              <Text style={styles.eventName}>{event.eventName}</Text>
+              <Text style={styles.eventCategory}>{event.category}</Text>
+              <Text numberOfLines={2} style={styles.eventDescription}>{event.description}</Text>
+              <TouchableOpacity 
+                style={styles.viewDetailsButton} 
+                onPress={() => alert(`Event: ${event.eventName}`)}
+              >
+                <Text style={styles.viewDetailsText}>View Details</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
         </ScrollView>
-        <AddEventCard />
       </ScrollView>
+      <View style={styles.addEventContainer}>
+        <AddEventCard />
+      </View>
     </View>
   );
 };
@@ -124,24 +123,70 @@ const ExploreScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFC',
+    backgroundColor: '#EAEDED',
   },
   content: {
     paddingHorizontal: 15,
   },
   sectionTitle: {
-    fontSize: 18,
+    paddingTop: 10,
+    fontSize: 20,
     fontWeight: 'bold',
     marginVertical: 10,
+    marginLeft: 10,
   },
   eventList: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
+    alignItems: 'center', // Centers the items horizontally
   },
   eventCardWrapper: {
-    width: 150,
-    marginHorizontal: 5,
+    backgroundColor: '#FFF',
+    borderRadius: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 5,
+    padding: 15,
+    marginVertical: 10,
+    alignItems: 'center',
+    width: '90%', // Makes the cards narrower for better centering
+  },
+  eventImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 10,
+  },
+  eventName: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginTop: 10,
+    textAlign: 'center',
+  },
+  eventCategory: {
+    fontSize: 14,
+    color: '#555',
+    marginVertical: 5,
+  },
+  eventDescription: {
+    fontSize: 14,
+    color: '#333',
+    textAlign: 'center',
+  },
+  viewDetailsButton: {
+    marginTop: 15,
+    backgroundColor: '#4CAF50',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  viewDetailsText: {
+    color: '#FFF',
+    fontWeight: 'bold',
+  },
+  addEventContainer: {
+    paddingHorizontal: 10,
+    backgroundColor: '#EAEDED',
+    borderTopColor: '#EAEDED',
   },
 });
 

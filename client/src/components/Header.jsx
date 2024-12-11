@@ -1,15 +1,33 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
+import HomeDrawer from './HomeDrawer';
 
-const Header = ({ onNotificationPress, onSpeechPress }) => (
-  <View style={styles.header}>
-    {/* App Name */}
-    <Text style={styles.title}>Home</Text>
+const Header = () => {
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-    <View style={styles.icons}>
+  const toggleDrawer = () => {
+    setIsDrawerOpen(!isDrawerOpen);
+  };
+
+  return (
+    <View style={styles.header}>
+      {/* Hamburger Icon */}
+      <TouchableOpacity onPress={toggleDrawer} style={styles.leftIcon}>
+        <Icon name="menu" size={28} color="#FFFFFF" />
+      </TouchableOpacity>
+
+      {/* Centered Title */}
+      <Text style={styles.title}>Home</Text>
+
+      {/* Placeholder for right alignment (if needed in future) */}
+      <View style={styles.rightPlaceholder}></View>
+
+      {/* Drawer */}
+      <HomeDrawer isVisible={isDrawerOpen} closeDrawer={toggleDrawer} />
     </View>
-  </View>
-);
+  );
+};
 
 const styles = StyleSheet.create({
   header: {
@@ -18,23 +36,20 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    position: 'relative', // Allows absolute positioning of the title
+  },
+  leftIcon: {
+    position: 'absolute',
+    left: 20,
+    zIndex: 10,
   },
   title: {
     color: '#FFFFFF',
-    fontSize: 20,
+    fontSize: 25,
     fontWeight: 'bold',
-  },
-  icons: {
-    flexDirection: 'row',
-  },
-  icon: {
-    marginLeft: 15,
-  },
-  iconText: {
-    fontSize: 24,
-    color: '#FFFFFF',
+    textAlign: 'center',
+    flex: 1,
   },
 });
 
