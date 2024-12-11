@@ -1,4 +1,4 @@
-import React,{useContext} from 'react';
+import React, { useContext, useState } from 'react';
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from 'react-i18next';
 import {
@@ -13,25 +13,25 @@ import Toast from "react-native-toast-message";
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import { useLoginMutation } from "../redux/slices/api/authApiSlice.js";
 import { UserContext } from '../context/UserContext.jsx';
-
+import Icon from 'react-native-vector-icons/FontAwesome'; 
 
 const LoginScreen = ({ navigation }) => {
-  const { control, handleSubmit, formState: { errors } } = useForm(); // Initialize react-hook-form
+  const { control, handleSubmit, formState: { errors } } = useForm(); 
   const [login, { isLoading }] = useLoginMutation();
   const { t } = useTranslation();
   const { setUser } = useContext(UserContext);
-  // Handling form submission
+  const [showPassword, setShowPassword] = useState(false); 
+
   const onSubmit = async (data) => {
     try {
-      // console.log("data=", data); // Check the data being sent
-      const result = await login(data).unwrap(); // Call login API
+      const result = await login(data).unwrap(); 
       Toast.show({
         type: "success",
         text1: "Login Successful",
-        text2: `Welcome back, ${result?.user?.firstName || "User"}! 🎉`, // Example success message
+        text2: `Welcome back, ${result?.user?.firstName || "User"}! 🎉`,
       });
       setUser(result);
-      navigation.replace("Main"); // Redirect to Home Screen
+      navigation.replace("Main");
     } catch (error) {
       Alert.alert("Error", error.data?.message || "Login failed");
     }
@@ -45,7 +45,7 @@ const LoginScreen = ({ navigation }) => {
         {/* Email Input */}
         <Controller
           control={control}
-          name="email"  // Name of the field
+          name="email"
           rules={{
             required: 'Email is required',
             pattern: {
@@ -58,36 +58,44 @@ const LoginScreen = ({ navigation }) => {
               style={styles.input}
               placeholder={t('login.email')}
               keyboardType="email-address"
-              value={value} // Bind value
-              onChangeText={onChange} // Update form state
-              onBlur={onBlur} // Trigger validation on blur
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
             />
           )}
         />
         {errors.email && <Text style={styles.errorText}>{errors.email?.message}</Text>}
 
-        {/* Password Input */}
-        <Controller
-          control={control}
-          name="password"  // Name of the field
-          rules={{ required: 'Password is required' }} // Validation rules
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={styles.input}
-              placeholder={t('login.password')}
-              secureTextEntry
-              value={value} // Bind value
-              onChangeText={onChange} // Update form state
-              onBlur={onBlur} // Trigger validation on blur
-            />
-          )}
-        />
+       
+        <View style={styles.passwordContainer}>
+          <Controller
+            control={control}
+            name="password"
+            rules={{ required: 'Password is required' }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.input}
+                placeholder={t('login.password')}
+                secureTextEntry={!showPassword} 
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+              />
+            )}
+          />
+         
+          <TouchableOpacity 
+            onPress={() => setShowPassword(!showPassword)} 
+            style={styles.icon}>
+            <Icon name={showPassword ? 'eye' : 'eye-slash'} size={20} color="gray" />
+          </TouchableOpacity>
+        </View>
         {errors.password && <Text style={styles.errorText}>{errors.password?.message}</Text>}
       </View>
 
       <TouchableOpacity
         style={styles.button}
-        onPress={handleSubmit(onSubmit)} // Wrap onSubmit with handleSubmit
+        onPress={handleSubmit(onSubmit)}
         disabled={isLoading}
       >
         <Text style={styles.buttonText}>
@@ -128,6 +136,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 10,
     backgroundColor: '#fff',
+    paddingRight: 40,  
+  },
+  passwordContainer: {
+    position: 'relative', 
+  },
+  icon: {
+    position: 'absolute',
+    right: 10,  
+    top: 15,    
   },
   button: {
     backgroundColor: '#5C3BE7',
