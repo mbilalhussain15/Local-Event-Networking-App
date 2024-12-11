@@ -23,7 +23,7 @@ export const createTicket = async (req, res) => {
         }
 
         // Determine ticket price based on ticket type
-        const price = ticketType === 'Normal' ? 50 : ticketType === 'VIP' ? 100 : 0;
+        const price = ticketType === 'Standard' ? 50 : ticketType === 'VIP' ? 100 : 0;
         if (!price) {
             return res.status(400).json({ error: "Invalid ticket type" });
         }
@@ -52,7 +52,7 @@ export const updateTicket = async (req, res) => {
         const { ticketType } = req.body;
         const ticketId = req.params.id;
 
-        const price = ticketType === 'Normal' ? 50 : ticketType === 'VIP' ? 100 : 0;
+        const price = ticketType === 'Standard' ? 50 : ticketType === 'VIP' ? 100 : 0;
         if (!price) {
             return res.status(400).json({ error: "Invalid ticket type" });
         }
