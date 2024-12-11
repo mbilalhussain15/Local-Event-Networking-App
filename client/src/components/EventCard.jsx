@@ -20,7 +20,7 @@ const EventCard = ({ eventName, category, location, imageUrl, onPress }) => (
 
 const styles = StyleSheet.create({
   wrapper: {
-    margin: 10,
+    margin: 8, // Reduced margin for less space between cards
   },
   card: {
     backgroundColor: '#FFF',
@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 6,
     padding: 12,
-    marginBottom: 16,
+    marginBottom: 12, // Reduced space between cards
     alignItems: 'flex-start',
   },
   contentWrapper: {
@@ -65,9 +65,11 @@ const styles = StyleSheet.create({
     color: '#888',
     textAlign: 'left',
   },
+  headerSpacer: {
+    marginBottom: 40, // Spacing between header and the first card
+  },
 });
 
 export default EventCard;
 
-// The imageUrl passed to EventCard in EventsScreen.jsx now uses the logic from EventDetailsScreen.jsx
-// Ensure to pass updatedEvent?.image (processed using updateImageUrlForPlatform) to this component.
+// Ensure to apply the "headerSpacer" style in the parent component rendering the cards to adjust spacing between the header and the first card.
