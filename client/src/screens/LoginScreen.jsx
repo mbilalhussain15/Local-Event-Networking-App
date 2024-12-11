@@ -91,12 +91,13 @@ const LoginScreen = ({ navigation }) => {
         disabled={isLoading}
       >
         <Text style={styles.buttonText}>
-          {isLoading ? "Logging in..." : "Login"}
+        {isLoading ? t('login.loggingIn') : t('login.title')}
+
         </Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => navigation.navigate("RegisterScreen")}>
-        <Text style={styles.registerText}>Don't have an account? Sign up</Text>
+        <Text style={styles.registerText}>{t('login.signUpPrompt')}</Text>
       </TouchableOpacity>
       <Toast />
     </View>
