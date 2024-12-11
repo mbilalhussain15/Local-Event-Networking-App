@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
 import {
-    Alert,
-    Button,
-    Modal,
-    ScrollView,
-    StyleSheet,
-    Switch,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Button,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 const AddEventCard = () => {
+  const { t } = useTranslation(); // Initialize translation hook
   const [isModalVisible, setModalVisible] = useState(false);
   const [eventName, setEventName] = useState('');
   const [description, setDescription] = useState('');
@@ -53,7 +55,7 @@ const AddEventCard = () => {
       },
     };
 
-    Alert.alert('Event Created', JSON.stringify(newEvent, null, 2));
+    Alert.alert(t('addEvent.title'), JSON.stringify(newEvent, null, 2));
     setModalVisible(false);
   };
 
@@ -63,7 +65,7 @@ const AddEventCard = () => {
         style={styles.addButton}
         onPress={() => setModalVisible(true)}
       >
-        <Text style={styles.addButtonText}>Add New Event</Text>
+        <Text style={styles.addButtonText}>{t('addEvent.addNewEvent')}</Text>
       </TouchableOpacity>
 
       <Modal
@@ -74,112 +76,113 @@ const AddEventCard = () => {
       >
         <View style={styles.modalContainer}>
           <ScrollView contentContainerStyle={styles.modalContent}>
-            <Text style={styles.title}>Create New Event</Text>
+            <Text style={styles.title}>{t('addEvent.title')}</Text>
             <TextInput
               style={styles.input}
-              placeholder="Event Name"
+              placeholder={t('addEvent.eventName')}
               value={eventName}
               onChangeText={setEventName}
             />
             <TextInput
               style={styles.input}
-              placeholder="Description"
+              placeholder={t('addEvent.description')}
               value={description}
               onChangeText={setDescription}
               multiline
             />
             <TextInput
               style={styles.input}
-              placeholder="Category"
+              placeholder={t('addEvent.category')}
               value={category}
               onChangeText={setCategory}
             />
             <TextInput
               style={styles.input}
-              placeholder="Max Capacity"
+              placeholder={t('addEvent.maxCapacity')}
               value={maxCapacity}
               onChangeText={setMaxCapacity}
               keyboardType="numeric"
             />
             <TextInput
               style={styles.input}
-              placeholder="Total Tickets Sold"
+              placeholder={t('addEvent.totalTicketsSold')}
               value={totalTicketsSold}
               onChangeText={setTotalTicketsSold}
               keyboardType="numeric"
             />
             <View style={styles.switchContainer}>
-              <Text>Registration Required</Text>
+              <Text>{t('addEvent.registrationRequired')}</Text>
               <Switch
                 value={registrationRequired}
                 onValueChange={setRegistrationRequired}
               />
             </View>
             <View style={styles.switchContainer}>
-              <Text>Is Virtual</Text>
-              <Switch
-                value={isVirtual}
-                onValueChange={setIsVirtual}
-              />
+              <Text>{t('addEvent.isVirtual')}</Text>
+              <Switch value={isVirtual} onValueChange={setIsVirtual} />
             </View>
             <TextInput
               style={styles.input}
-              placeholder="Contact Email"
+              placeholder={t('addEvent.contactEmail')}
               value={contactEmail}
               onChangeText={setContactEmail}
               keyboardType="email-address"
             />
             <TextInput
               style={styles.input}
-              placeholder="Created By"
+              placeholder={t('addEvent.createdBy')}
               value={createdBy}
               onChangeText={setCreatedBy}
             />
             <TextInput
               style={styles.input}
-              placeholder="Date (YYYY-MM-DD)"
+              placeholder={t('addEvent.date')}
               value={date}
               onChangeText={setDate}
             />
             <TextInput
               style={styles.input}
-              placeholder="Venue Name"
+              placeholder={t('addEvent.venueName')}
               value={venueName}
               onChangeText={setVenueName}
             />
             <TextInput
               style={styles.input}
-              placeholder="Street Address"
+              placeholder={t('addEvent.streetAddress')}
               value={streetAddress}
               onChangeText={setStreetAddress}
             />
             <TextInput
               style={styles.input}
-              placeholder="City"
+              placeholder={t('addEvent.city')}
               value={city}
               onChangeText={setCity}
             />
             <TextInput
               style={styles.input}
-              placeholder="State"
+              placeholder={t('addEvent.state')}
               value={state}
               onChangeText={setState}
             />
             <TextInput
               style={styles.input}
-              placeholder="Postal Code"
+              placeholder={t('addEvent.postalCode')}
               value={postalCode}
               onChangeText={setPostalCode}
             />
             <TextInput
               style={styles.input}
-              placeholder="Country"
+              placeholder={t('addEvent.country')}
               value={country}
               onChangeText={setCountry}
             />
-            <Button title="Save Event" onPress={handleSubmit} />
+            <Button title={t('addEvent.saveEvent')} onPress={handleSubmit} />
             <View style={styles.buttonSpacing}>
-              <Button title="Cancel" onPress={() => setModalVisible(false)} color="red" />
+              <Button
+                title={t('addEvent.cancel')}
+                onPress={() => setModalVisible(false)}
+                color="red"
+              />
             </View>
           </ScrollView>
         </View>
