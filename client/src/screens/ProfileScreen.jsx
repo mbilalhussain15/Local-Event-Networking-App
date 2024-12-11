@@ -16,12 +16,12 @@ import { UserContext } from '../context/UserContext';
 import { useUpdateUserMutation } from "../redux/slices/api/authApiSlice.js";
 import DeviceInfo from 'react-native-device-info';
 import NetInfo from '@react-native-community/netinfo';  
-import { use } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const ProfileScreen = ({ navigation }) => {
-
+  const { t } = useTranslation();
   const { user, setUser } = useContext(UserContext);
   
   if (!user) {
@@ -185,11 +185,11 @@ useEffect(() => {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backButton}>{'< Back'}</Text>
+          <Text style={styles.backButton}>{t('profile.back')}</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Profile</Text>
+        <Text style={styles.title}>{t('profile.title')}</Text>
         <TouchableOpacity onPress={() => setEditModalVisible(true)}>
-          <Text style={styles.editButton}>Edit</Text>
+          <Text style={styles.editButton}>{t('profile.edit')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -206,21 +206,17 @@ useEffect(() => {
       </View>
 
       <View style={styles.detailsContainer}>
-        <Text style={styles.label}>First Name:</Text>
+        <Text style={styles.label}>{t('profile.firstName')}:</Text>
         <TextInput style={styles.input} value={profile.firstName} editable={false} />
 
-        <Text style={styles.label}>Last Name:</Text>
+        <Text style={styles.label}>{t('profile.lastName')}:</Text>
         <TextInput style={styles.input} value={profile.lastName} editable={false} />
 
-        <Text style={styles.label}>Email:</Text>
+        <Text style={styles.label}>{t('profile.email')}:</Text>
         <TextInput style={styles.input} value={profile.email} editable={false} />
 
-        <Text style={styles.label}>Phone:</Text>
-        <TextInput
-          style={styles.input}
-          value={profile.phone}
-          editable={false}
-        />
+        <Text style={styles.label}>{t('profile.phone')}:</Text>
+        <TextInput style={styles.input} value={profile.phone} editable={false} />
       </View>
 
       <Modal
@@ -237,30 +233,22 @@ useEffect(() => {
             >
               <Text style={styles.closeButtonText}>×</Text>
             </TouchableOpacity>
-            <Text style={styles.modalTitle}>Edit Profile</Text>
+            <Text style={styles.modalTitle}>{t('profile.editProfile')}</Text>
 
             <TouchableOpacity onPress={handleImageSelect}>
-            <Image
-  source={
-    updatedProfile.profileImage // First check if a new or updated image exists
-      ? { uri: updatedProfile.profileImage }
-      : profile.profileImage // If no updated image, check the profile image from the server
-        ? { uri: profile.profileImage }
-        : require('../assets/default-profile.png') // If neither, show the default image
-  }
-  style={[styles.profileImage, styles.modalProfileImage]}
-/>
-              {/* <Image
+              <Image
                 source={
                   updatedProfile.profileImage
                     ? { uri: updatedProfile.profileImage }
+                    : profile.profileImage
+                    ? { uri: profile.profileImage }
                     : require('../assets/default-profile.png')
                 }
                 style={[styles.profileImage, styles.modalProfileImage]}
-              /> */}
+              />
             </TouchableOpacity>
 
-            <Text style={styles.label}>First Name:</Text>
+            <Text style={styles.label}>{t('profile.firstName')}:</Text>
             <TextInput
               style={styles.input}
               value={updatedProfile.firstName}
@@ -269,7 +257,7 @@ useEffect(() => {
               }
             />
 
-            <Text style={styles.label}>Last Name:</Text>
+            <Text style={styles.label}>{t('profile.lastName')}:</Text>
             <TextInput
               style={styles.input}
               value={updatedProfile.lastName}
@@ -278,19 +266,19 @@ useEffect(() => {
               }
             />
 
-            <Text style={styles.label}>Phone:</Text>
+            <Text style={styles.label}>{t('profile.phone')}:</Text>
             <TextInput
               style={styles.input}
               value={updatedProfile.phone}
               onChangeText={(text) =>
                 setUpdatedProfile({ ...updatedProfile, phone: text })
               }
-              placeholder="+491234567890"
+              placeholder={t('profile.phonePlaceholder')}
               keyboardType="phone-pad"
             />
 
             <View style={styles.modalButtons}>
-              <Button title="Save" onPress={handleSave} color="#007AFF" />
+              <Button title={t('profile.save')} onPress={handleSave} color="#007AFF" />
             </View>
           </View>
         </View>
