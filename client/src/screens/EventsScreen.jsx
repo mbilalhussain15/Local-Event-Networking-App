@@ -1,7 +1,8 @@
-import { useGetEventsQuery } from '../redux/slices/api/eventApiSlice';
 import React, { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';// Ensure correct path
+import { FlatList, StyleSheet, View } from 'react-native'; // Ensure correct path
 import EventCard from '../components/EventCard';
+import EventsHeader from '../components/EventsHeader';
+import { useGetEventsQuery } from '../redux/slices/api/eventApiSlice';
 
 const EventsScreen = ({ navigation }) => {
   const [events, setEvents] = useState([]); // Local state for events
@@ -15,11 +16,10 @@ const EventsScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Events</Text>
+      <EventsHeader style={styles.headerFullWidth} />
       <FlatList
         data={events}
         keyExtractor={(item) => item._id}
-        
         renderItem={({ item }) => (
           <EventCard
             key={item._id}
@@ -37,17 +37,12 @@ const EventsScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#EAEDED',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    textAlign: 'center',
+  headerFullWidth: {
+    marginHorizontal: 0,
+    width: '100%',
   },
 });
 
 export default EventsScreen;
-
-
