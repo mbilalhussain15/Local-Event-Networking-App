@@ -1,15 +1,21 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
-const Header = ({ onNotificationPress, onSpeechPress }) => (
-  <View style={styles.header}>
-    {/* App Name */}
-    <Text style={styles.title}>Home</Text>
+const Header = ({ onNotificationPress, onSpeechPress }) => {
+  const { t } = useTranslation();  // Initialize translation hook
 
-    <View style={styles.icons}>
+  return (
+    <View style={styles.header}>
+      {/* Translated App Name */}
+      <Text style={styles.title}>{t('header.home')}</Text> 
+
+      <View style={styles.icons}>
+        {/* You can add the notification and speech buttons here */}
+      </View>
     </View>
-  </View>
-);
+  );
+};
 
 const styles = StyleSheet.create({
   header: {
