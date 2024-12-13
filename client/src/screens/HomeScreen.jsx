@@ -1,101 +1,108 @@
 import React from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import AddEventCard from '../components/AddEventCard';
 import Header from '../components/Header';
 
-const events = [
-  {
-    id: '1',
-    eventName: 'Music Concert',
-    description: 'An unforgettable night of live music.',
-    category: 'Music',
-    image: 'https://via.placeholder.com/150',
-    location: {
-      venueName: 'New Concert Hall',
-      city: 'New York',
-      state: 'NY',
-      country: 'USA',
-    },
-  },
-  {
-    id: '2',
-    eventName: 'Tech Summit 2024',
-    description: 'Join leading tech innovators and visionaries.',
-    category: 'Technology',
-    image: 'https://via.placeholder.com/150',
-    location: {
-      venueName: 'Virtual Event',
-      city: 'Online',
-    },
-  },
-  {
-    id: '3',
-    eventName: 'Art Gala',
-    description: 'Celebrate creativity with the finest artists worldwide.',
-    category: 'Art',
-    image: 'https://via.placeholder.com/150',
-    location: {
-      venueName: 'Modern Art Museum',
-      city: 'Paris',
-      country: 'France',
-    },
-  },
-  {
-    id: '4',
-    eventName: 'Food Festival',
-    description: 'A feast of flavors from around the world.',
-    category: 'Food',
-    image: 'https://via.placeholder.com/150',
-    location: {
-      venueName: 'Gourmet Plaza',
-      city: 'Los Angeles',
-      state: 'CA',
-    },
-  },
-  {
-    id: '5',
-    eventName: 'Sports Championship',
-    description: 'Watch your favorite teams compete!',
-    category: 'Sports',
-    image: 'https://via.placeholder.com/150',
-    location: {
-      venueName: 'National Stadium',
-      city: 'Chicago',
-      state: 'IL',
-      country: 'USA',
-    },
-  },
-  {
-    id: '6',
-    eventName: 'Literature Meetup',
-    description: 'Discuss and celebrate great literature.',
-    category: 'Books',
-    image: 'https://via.placeholder.com/150',
-    location: {
-      venueName: 'Library Hall',
-      city: 'London',
-      country: 'UK',
-    },
-  },
-];
+
 
 const ExploreScreen = () => {
+  const { t } = useTranslation();
+
+  // Sample events data
+  const events = [
+    {
+      id: '1',
+      eventName: 'Music Concert',
+      description: 'An unforgettable night of live music.',
+      category: 'Music',
+      image: 'https://via.placeholder.com/150',
+      location: {
+        venueName: 'New Concert Hall',
+        city: 'New York',
+        state: 'NY',
+        country: 'USA',
+      },
+    },
+    {
+      id: '2',
+      eventName: 'Tech Summit 2024',
+      description: 'Join leading tech innovators and visionaries.',
+      category: 'Technology',
+      image: 'https://via.placeholder.com/150',
+      location: {
+        venueName: 'Virtual Event',
+        city: 'Online',
+      },
+    },
+    {
+      id: '3',
+      eventName: 'Art Gala',
+      description: 'Celebrate creativity with the finest artists worldwide.',
+      category: 'Art',
+      image: 'https://via.placeholder.com/150',
+      location: {
+        venueName: 'Modern Art Museum',
+        city: 'Paris',
+        country: 'France',
+      },
+    },
+    {
+      id: '4',
+      eventName: 'Food Festival',
+      description: 'A feast of flavors from around the world.',
+      category: 'Food',
+      image: 'https://via.placeholder.com/150',
+      location: {
+        venueName: 'Gourmet Plaza',
+        city: 'Los Angeles',
+        state: 'CA',
+      },
+    },
+    {
+      id: '5',
+      eventName: 'Sports Championship',
+      description: 'Watch your favorite teams compete!',
+      category: 'Sports',
+      image: 'https://via.placeholder.com/150',
+      location: {
+        venueName: 'National Stadium',
+        city: 'Chicago',
+        state: 'IL',
+        country: 'USA',
+      },
+    },
+    {
+      id: '6',
+      eventName: 'Literature Meetup',
+      description: 'Discuss and celebrate great literature.',
+      category: 'Books',
+      image: 'https://via.placeholder.com/150',
+      location: {
+        venueName: 'Library Hall',
+        city: 'London',
+        country: 'UK',
+      },
+    },
+  ];
+
   const handleNotificationPress = () => {
-    alert('Notifications');
+    Alert.alert(t('explore.navBar.notifications'));
   };
 
   const handleSpeechPress = () => {
-    alert('Text-to-Speech Activated');
+    Alert.alert('Text-to-Speech Activated');
   };
 
   return (
     <View style={styles.container}>
       <Header 
+        title={t('header')}
         onNotificationPress={handleNotificationPress} 
         onSpeechPress={handleSpeechPress} 
       />
       <ScrollView style={styles.content}>
-        <Text style={styles.sectionTitle}>Upcoming Events</Text>
+        <Text style={styles.sectionTitle}>{t('explore.upcomingEvents')}</Text>
         <ScrollView contentContainerStyle={styles.eventList} showsVerticalScrollIndicator={false}>
           {events.map((event) => (
             <View key={event.id} style={styles.eventCardWrapper}>

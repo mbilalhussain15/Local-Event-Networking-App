@@ -4,7 +4,8 @@
       "email": "E-Mail-Adresse",
       "password": "Passwort",
       "signIn": "ANMELDEN",
-      "signUpPrompt": "Kein Konto? Registrieren"
+      "signUpPrompt": "Kein Konto? Registrieren",
+      "loggingIn": "Anmelden..."
     },
     "register": {
       "title": "Registrieren",
@@ -15,8 +16,85 @@
       "confirmPassword": "Passwort bestätigen",
       "phone": "Telefonnummer",
       "profileImage": "Profilbild auswählen",
-      "signUp": "REGISTRIEREN",
-      "signInPrompt": "Bereits registriert? Anmelden"
-    }
+      "signUp": "Registrieren",
+      "registering": "Registrieren...",
+      "alreadyHaveAccount": "Haben Sie bereits ein Konto? Anmelden"
+    },
+
+    "explore": {
+    "upcomingEvents": "Kommende Veranstaltungen"
+  },
+  "header": {
+    "home": "Startseite"
+  },
+  "addEvent": {
+    "title": "Neues Event erstellen",
+    "eventName": "Event Name",
+    "description": "Beschreibung",
+    "category": "Kategorie",
+    "maxCapacity": "Maximale Kapazität",
+    "totalTicketsSold": "Verkaufte Tickets insgesamt",
+    "registrationRequired": "Registrierung erforderlich",
+    "isVirtual": "Virtuell",
+    "contactEmail": "Kontakt-E-Mail",
+    "createdBy": "Erstellt von",
+    "date": "Datum (JJJJ-MM-TT)",
+    "venueName": "Veranstaltungsort",
+    "streetAddress": "Straßenadresse",
+    "city": "Stadt",
+    "state": "Bundesland",
+    "postalCode": "Postleitzahl",
+    "country": "Land",
+    "saveEvent": "Event speichern",
+    "cancel": "Abbrechen",
+    "addNewEvent": "Neues Event hinzufügen"
+  },
+  
+    "home": "Startseite",
+    "events": "Veranstaltungen",
+    "map": "Karte",
+    "settings": "Einstellungen",
+    "Loading details...": "Details werden geladen...",
+    "Unable to load event or user details.": "Konnte die Veranstaltungs- oder Benutzerdaten nicht laden.",
+    "About Event": "Über die Veranstaltung",
+    "Buy Ticket": "Ticket kaufen",
+
+    "Profile": "Profil",
+    "Change Password": "Passwort ändern",
+    "Change Language": "Sprache ändern",
+    "Logout": "Abmelden",
+    "Old Password": "Altes Passwort",
+    "New Password": "Neues Passwort",
+    "Confirm Password": "Passwort bestätigen",
+    "Save": "Speichern",
+    "Search...": "Suchen...",
+    "Select Language": "Sprache auswählen",
+    "Please select a language.": "Bitte wählen Sie eine Sprache aus.",
+    "New password and confirm password do not match.": "Neues Passwort und Bestätigungspasswort stimmen nicht überein.",
+    "All fields are required.": "Alle Felder sind erforderlich.",
+    "Your password has been successfully updated.": "Ihr Passwort wurde erfolgreich aktualisiert.",
+    "Failed to update password. Please try again.": "Fehler beim Aktualisieren des Passworts. Bitte versuchen Sie es erneut.",
+    "Language updated to": "Sprache auf",
+    "Failed to update language. Please try again.": "Fehler beim Aktualisieren der Sprache. Bitte versuchen Sie es erneut.",
+    "Error": "Fehler",
+    "Success": "Erfolg",
+    "Logout Successful": "Abmeldung erfolgreich",
+    "You have been logged out successfully.": "Sie wurden erfolgreich abgemeldet.",
+    "Failed to log out. Please try again.": "Fehler bei der Abmeldung. Bitte versuchen Sie es erneut.",
+    "Select a language": "Wählen Sie eine Sprache",
+
+    "profile": {
+    "back": "< Zurück",
+    "title": "Profil",
+    "edit": "Bearbeiten",
+    "firstName": "Vorname",
+    "lastName": "Nachname",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "editProfile": "Profil bearbeiten",
+    "phonePlaceholder": "+491234567890",
+    "save": "Speichern"
+  }
+
   }
   

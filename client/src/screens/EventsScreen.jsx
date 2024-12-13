@@ -3,8 +3,10 @@ import { FlatList, StyleSheet, View } from 'react-native'; // Ensure correct pat
 import EventCard from '../components/EventCard';
 import EventsHeader from '../components/EventsHeader';
 import { useGetEventsQuery } from '../redux/slices/api/eventApiSlice';
+import { useTranslation } from 'react-i18next'; 
 
 const EventsScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const [events, setEvents] = useState([]); // Local state for events
   const { data, isLoading, isError } = useGetEventsQuery(); // Fetch events from API
 
@@ -26,7 +28,12 @@ const EventsScreen = ({ navigation }) => {
             eventName={item.eventName}
             category={item.category}
             location={item.location}
-            onPress={() => navigation.navigate('eventDetails', { eventId: item._id, eventDetailByID: item })}
+            onPress={() =>
+              navigation.navigate('eventDetails', {
+                eventId: item._id,
+                eventDetailByID: item,
+              })
+            }
           />
         )}
       />
