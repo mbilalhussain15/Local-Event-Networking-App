@@ -158,7 +158,7 @@ const RegistrationScreen = ({ navigation }) => {
           disabled={isLoading}
         >
           <Text style={styles.buttonText}>
-            {isLoading ? "Registering..." : "Sign Up"}
+          {isLoading ? t('register.registering') : t('register.signUp')}
           </Text>
         </TouchableOpacity>
 

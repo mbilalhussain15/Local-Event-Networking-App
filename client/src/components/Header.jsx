@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import HomeDrawer from './HomeDrawer';
+import { useTranslation } from 'react-i18next';
 
 const Header = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const {t} = useTranslation();
 
   const toggleDrawer = () => {
     setIsDrawerOpen(!isDrawerOpen);
@@ -18,7 +20,7 @@ const Header = () => {
       </TouchableOpacity>
 
       {/* Centered Title */}
-      <Text style={styles.title}>Home</Text>
+      <Text style={styles.title}>{t('header.home')}</Text>
 
       {/* Placeholder for right alignment (if needed in future) */}
       <View style={styles.rightPlaceholder}></View>

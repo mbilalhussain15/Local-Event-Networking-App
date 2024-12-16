@@ -10,15 +10,16 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Dropdown } from 'react-native-element-dropdown';
 import { UserContext } from '../context/UserContext';
 import { useCreateEventMutation } from '../redux/slices/api/eventApiSlice.js';
 import Toast from 'react-native-toast-message';
 
-
 const AddEventCard = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
+
   const [isModalVisible, setModalVisible] = useState(false);
   const [eventName, setEventName] = useState('');
   const [description, setDescription] = useState('');
@@ -58,6 +59,7 @@ const AddEventCard = () => {
       },
     };
 
+
    
     try {
       // Alert.alert(newEvent);
@@ -79,6 +81,7 @@ const AddEventCard = () => {
       Alert.alert('Error', 'Failed to create the event. Please try again.');
       console.error('Error creating event:', error);
     }
+
   };
 
 
@@ -103,7 +106,7 @@ const AddEventCard = () => {
         style={styles.addButton}
         onPress={() => setModalVisible(true)}
       >
-        <Text style={styles.addButtonText}>Add New Event</Text>
+        <Text style={styles.addButtonText}>{t('addEvent.addNewEvent')}</Text>
       </TouchableOpacity>
 
       <Modal
@@ -114,20 +117,21 @@ const AddEventCard = () => {
       >
         <View style={styles.modalContainer}>
           <ScrollView contentContainerStyle={styles.modalContent}>
-            <Text style={styles.title}>Create New Event</Text>
+            <Text style={styles.title}>{t('addEvent.title')}</Text>
             <TextInput
               style={styles.input}
-              placeholder="Event Name"
+              placeholder={t('addEvent.eventName')}
               value={eventName}
               onChangeText={setEventName}
             />
             <TextInput
               style={styles.input}
-              placeholder="Description"
+              placeholder={t('addEvent.description')}
               value={description}
               onChangeText={setDescription}
               multiline
             />
+
             <Dropdown
               style={styles.dropdown}
               data={categories}
@@ -136,23 +140,21 @@ const AddEventCard = () => {
               labelField="label"
               valueField="value"
               placeholder="Select a Category"
+
               value={category}
               onChange={(item) => setCategory(item.value)}
             />
             <TextInput
               style={styles.input}
-              placeholder="Max Capacity"
+              placeholder={t('addEvent.maxCapacity')}
               value={maxCapacity}
               onChangeText={setMaxCapacity}
               keyboardType="numeric"
             />
-            
+
             <View style={styles.switchContainer}>
-              <Text>Is Virtual</Text>
-              <Switch
-                value={isVirtual}
-                onValueChange={setIsVirtual}
-              />
+              <Text>{t('addEvent.isVirtual')}</Text>
+              <Switch value={isVirtual} onValueChange={setIsVirtual} />
             </View>
         
             <View style={styles.inputContainer}>
@@ -173,48 +175,49 @@ const AddEventCard = () => {
               )}
             </View>
 
+
             <TextInput
               style={styles.input}
-              placeholder="Venue Name"
+              placeholder={t('addEvent.venueName')}
               value={venueName}
               onChangeText={setVenueName}
             />
             <TextInput
               style={styles.input}
-              placeholder="Street Address"
+              placeholder={t('addEvent.streetAddress')}
               value={streetAddress}
               onChangeText={setStreetAddress}
             />
             <TextInput
               style={styles.input}
-              placeholder="City"
+              placeholder={t('addEvent.city')}
               value={city}
               onChangeText={setCity}
             />
             <TextInput
               style={styles.input}
-              placeholder="State"
+              placeholder={t('addEvent.state')}
               value={state}
               onChangeText={setState}
             />
             <TextInput
               style={styles.input}
-              placeholder="Postal Code"
+              placeholder={t('addEvent.postalCode')}
               value={postalCode}
               onChangeText={setPostalCode}
             />
             <TextInput
               style={styles.input}
-              placeholder="Country"
+              placeholder={t('addEvent.country')}
               value={country}
               onChangeText={setCountry}
             />
             <TouchableOpacity style={styles.saveButton} onPress={handleSubmit}>
-              <Text style={styles.saveButtonText}>Save Event</Text>
+              <Text style={styles.saveButtonText}>{t('addEvent.saveEvent')}</Text>
             </TouchableOpacity>
             <View style={styles.buttonSpacing}>
               <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={styles.cancelButtonText}>{t('addEvent.cancel')}</Text>
               </TouchableOpacity>
             </View>
           </ScrollView>
