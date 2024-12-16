@@ -8,13 +8,13 @@ export const createEvent = async (req, res) => {
             description,
             category,
             maxCapacity,
-            registration_required,
             is_virtual,
             user_id, // Changed from created_by to user_id
             date,
             location, // Accept location object
         } = req.body;
 
+        console.log("created event: ", req.body)
         // Validate location (latitude and longitude are no longer needed)
         if (!location || !location.venueName || !location.streetAddress || !location.city || !location.state || !location.postalCode || !location.country) {
             return res.status(400).json({
@@ -28,7 +28,6 @@ export const createEvent = async (req, res) => {
             description,
             category,
             maxCapacity,
-            registration_required,
             is_virtual,
             user_id, // Changed from created_by to user_id
             date,
