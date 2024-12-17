@@ -106,14 +106,14 @@ const EventDetailsScreen = ({ route, navigation }) => {
         country: country || '',
       });
     }
-
+console.log("event=",event?.eventImage)
     // Update event image URL if exists
     const updateEventImage = async () => {
-      if (event?.image) {
-        const updatedImageUrl = await updateImageUrlForPlatform(event.image);
+      if (event?.eventImage) {
+        const updatedImageUrl = await updateImageUrlForPlatform(event.eventImage);
         setUpdatedEvent((prevEvent) => ({
           ...prevEvent,
-          image: updatedImageUrl,
+          eventImage: updatedImageUrl,
         }));
       }
     };
@@ -162,7 +162,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
 
       {/* Event Header Image */}
       <Image
-        source={updatedEvent?.image ? { uri: updatedEvent?.image } : require('../assets/eventsImages/event.jpg')}
+        source={updatedEvent?.eventImage ? { uri: updatedEvent?.eventImage } : require('../assets/eventsImages/event.jpg')}
         style={styles.headerImage}
       />
 

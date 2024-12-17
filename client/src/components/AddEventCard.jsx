@@ -1,6 +1,7 @@
 import React, {useEffect, useState,useContext } from 'react';
 import {
   Alert,
+  Image,
   Modal,
   ScrollView,
   StyleSheet,
@@ -10,16 +11,16 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Dropdown } from 'react-native-element-dropdown';
 import { UserContext } from '../context/UserContext';
-import { useCreateEventMutation } from '../redux/slices/api/eventApiSlice.js';
+import { useCreateEventMutation,useUploadEventImageMutation } from '../redux/slices/api/eventApiSlice.js';
 import Toast from 'react-native-toast-message';
+import { launchImageLibrary } from 'react-native-image-picker';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const AddEventCard = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
-
   const [isModalVisible, setModalVisible] = useState(false);
   const [eventName, setEventName] = useState('');
   const [description, setDescription] = useState('');
@@ -34,11 +35,12 @@ const AddEventCard = () => {
   const [state, setState] = useState('');
   const [postalCode, setPostalCode] = useState('');
   const [country, setCountry] = useState('');
-
+  const [imageUri, setImageUri] = useState('');
   const { user } = useContext(UserContext);
   const user_Id= user.user._id;
 
   const [createEvent, { isLoading }] = useCreateEventMutation();
+  const [uploadEventImage] = useUploadEventImageMutation();
 
   const handleSubmit = async () => {
     const newEvent = {
@@ -49,6 +51,7 @@ const AddEventCard = () => {
       maxCapacity: parseInt(maxCapacity, 10),
       is_virtual: isVirtual,
       date,
+      
       location: {
         venueName,
         streetAddress,
@@ -58,7 +61,6 @@ const AddEventCard = () => {
         country,
       },
     };
-
 
    
     try {
@@ -75,13 +77,49 @@ const AddEventCard = () => {
         bottomOffset: 100, 
        
       });
+
+      const eventId = response.event._id
+      // console.log("eventId= ",eventId )
+      // Step 2: If image exists, upload it
+    if (imageUri) {
+      const imageName = imageUri.split('/').pop();
+      const imageFile = {
+        uri: imageUri,
+        type: 'image/jpeg',
+        name: imageName,
+      };
+
+      
+      const imageFormData = new FormData();
+      imageFormData.append('eventImage', imageFile);  // Attach the image
+
+      console.log("imageFormData:", imageFormData);
+      // Make the API call to upload the image
+      await uploadEventImage({user_Id, eventId, formData: imageFormData });
+    }
      
       setModalVisible(false);
     } catch (error) {
       Alert.alert('Error', 'Failed to create the event. Please try again.');
       console.error('Error creating event:', error);
     }
+  };
+  const handleImageUpload = () => {
+    launchImageLibrary({ mediaType: 'photo', quality: 1 }, (response) => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.errorMessage) {
+        console.log('ImagePicker Error: ', response.errorMessage);
+        Alert.alert('Error', 'Failed to upload image');
+      } else {
+        const uri = response.assets[0]?.uri;
+        setImageUri(uri);
+      }
+    });
+  };
 
+  const handleDeleteImage = () => {
+    setImageUri('');
   };
 
 
@@ -106,7 +144,7 @@ const AddEventCard = () => {
         style={styles.addButton}
         onPress={() => setModalVisible(true)}
       >
-        <Text style={styles.addButtonText}>{t('addEvent.addNewEvent')}</Text>
+        <Text style={styles.addButtonText}>Add New Event</Text>
       </TouchableOpacity>
 
       <Modal
@@ -117,21 +155,20 @@ const AddEventCard = () => {
       >
         <View style={styles.modalContainer}>
           <ScrollView contentContainerStyle={styles.modalContent}>
-            <Text style={styles.title}>{t('addEvent.title')}</Text>
+            <Text style={styles.title}>Create New Event</Text>
             <TextInput
               style={styles.input}
-              placeholder={t('addEvent.eventName')}
+              placeholder="Event Name"
               value={eventName}
               onChangeText={setEventName}
             />
             <TextInput
               style={styles.input}
-              placeholder={t('addEvent.description')}
+              placeholder="Description"
               value={description}
               onChangeText={setDescription}
               multiline
             />
-
             <Dropdown
               style={styles.dropdown}
               data={categories}
@@ -140,21 +177,23 @@ const AddEventCard = () => {
               labelField="label"
               valueField="value"
               placeholder="Select a Category"
-
               value={category}
               onChange={(item) => setCategory(item.value)}
             />
             <TextInput
               style={styles.input}
-              placeholder={t('addEvent.maxCapacity')}
+              placeholder="Max Capacity"
               value={maxCapacity}
               onChangeText={setMaxCapacity}
               keyboardType="numeric"
             />
-
+            
             <View style={styles.switchContainer}>
-              <Text>{t('addEvent.isVirtual')}</Text>
-              <Switch value={isVirtual} onValueChange={setIsVirtual} />
+              <Text>Is Virtual</Text>
+              <Switch
+                value={isVirtual}
+                onValueChange={setIsVirtual}
+              />
             </View>
         
             <View style={styles.inputContainer}>
@@ -175,51 +214,78 @@ const AddEventCard = () => {
               )}
             </View>
 
-
             <TextInput
               style={styles.input}
-              placeholder={t('addEvent.venueName')}
+              placeholder="Venue Name"
               value={venueName}
               onChangeText={setVenueName}
             />
             <TextInput
               style={styles.input}
-              placeholder={t('addEvent.streetAddress')}
+              placeholder="Street Address"
               value={streetAddress}
               onChangeText={setStreetAddress}
             />
             <TextInput
               style={styles.input}
-              placeholder={t('addEvent.city')}
+              placeholder="City"
               value={city}
               onChangeText={setCity}
             />
             <TextInput
               style={styles.input}
-              placeholder={t('addEvent.state')}
+              placeholder="State"
               value={state}
               onChangeText={setState}
             />
             <TextInput
               style={styles.input}
-              placeholder={t('addEvent.postalCode')}
+              placeholder="Postal Code"
               value={postalCode}
               onChangeText={setPostalCode}
             />
             <TextInput
               style={styles.input}
-              placeholder={t('addEvent.country')}
+              placeholder="Country"
               value={country}
               onChangeText={setCountry}
             />
-            <TouchableOpacity style={styles.saveButton} onPress={handleSubmit}>
-              <Text style={styles.saveButtonText}>{t('addEvent.saveEvent')}</Text>
-            </TouchableOpacity>
-            <View style={styles.buttonSpacing}>
-              <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
-                <Text style={styles.cancelButtonText}>{t('addEvent.cancel')}</Text>
+            {/* Image Upload Section */}
+            <View style={styles.imageUploadContainer}>
+              <TouchableOpacity
+                style={styles.imageUploadButton}
+                onPress={handleImageUpload}
+              >
+                <Text style={styles.uploadButtonText}>
+                  {imageUri ? 'Change Image' : 'Upload Image'}
+                </Text>
+              </TouchableOpacity>
+              {imageUri && (
+                <View style={styles.imagePreviewContainer}>
+                  <Image source={{ uri: imageUri }} style={styles.imagePreview} />
+                  <TouchableOpacity
+                    style={styles.deleteIcon}
+                    onPress={handleDeleteImage}
+                  >
+                    <Icon name="delete" size={30} color="#ff0000" />
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity style={styles.saveButton} onPress={handleSubmit}>
+                <Text style={styles.saveButtonText}>Save Event</Text>
               </TouchableOpacity>
             </View>
+
           </ScrollView>
         </View>
       </Modal>
@@ -246,6 +312,7 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#EAEDED',
   },
+  
   addButton: {
     backgroundColor: '#5C3BE7',
     padding: 15,
@@ -286,21 +353,25 @@ const styles = StyleSheet.create({
   buttonSpacing: {
     marginTop: 20,
   },
+  buttonContainer: {
+    flexDirection: 'row', // Aligns the buttons side by side
+    justifyContent: 'space-between', // Adds space between the buttons
+    marginTop: 20, // Adds space from previous elements
+  },
   saveButton: {
-    backgroundColor: '#4CAF50', 
+    backgroundColor: '#5C3BE7', 
     padding: 15,
+    width:'100%',
     borderRadius: 10,
     alignItems: 'center',
-    marginHorizontal: 100,
-
+    width: '45%',
   },
   cancelButton: {
     backgroundColor: '#F44336',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
-    marginHorizontal: 100,
-
+    width: '45%',
   },
   saveButtonText: {
     color: '#fff',
@@ -311,6 +382,35 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+
+  imageUploadContainer: {
+    marginVertical: 10,
+    alignItems: 'center',
+  },
+  imageUploadButton: {
+    backgroundColor: '#007bff',
+    padding: 10,
+    borderRadius: 5,
+  },
+  uploadButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  imagePreviewContainer: {
+    position: 'relative',
+    marginTop: 10,
+  },
+  imagePreview: {
+    width: 200,
+    height: 200,
+    borderRadius: 10,
+  },
+  deleteIcon: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    zIndex: 1, // Ensure it's on top of the image
   },
 });
 

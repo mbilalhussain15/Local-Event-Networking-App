@@ -6,12 +6,17 @@ import {
     updateEvent,
     deleteEvent,
     updateEventLocation,
+    updateEventWithImage,
 } from '../controllers/eventController.js';
+import { uploadEvent } from '../middleware/uploadEventImage.js';
 
 const router = express.Router();
 
 // Create event
 router.post('/createEvent', createEvent);
+
+// Image upload route (separate from event creation)
+router.post('/uploadEventImage/:userId/:eventId', uploadEvent.single('eventImage'), updateEventWithImage);
 
 // Get all events
 router.get('/getEvents', getAllEvents);

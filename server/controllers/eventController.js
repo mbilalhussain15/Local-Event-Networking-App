@@ -1,5 +1,8 @@
 import Event from '../models/eventModel.js';
 
+
+
+
 // Create event with location details
 export const createEvent = async (req, res) => {
     try {
@@ -14,7 +17,7 @@ export const createEvent = async (req, res) => {
             location, // Accept location object
         } = req.body;
 
-        console.log("created event: ", req.body)
+        // console.log("created event: ", req.body)
         // Validate location (latitude and longitude are no longer needed)
         if (!location || !location.venueName || !location.streetAddress || !location.city || !location.state || !location.postalCode || !location.country) {
             return res.status(400).json({
@@ -36,6 +39,7 @@ export const createEvent = async (req, res) => {
         });
 
         const savedEvent = await newEvent.save();
+
         res.status(201).json({
             success: true,
             message: "Event created successfully",
@@ -45,6 +49,153 @@ export const createEvent = async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 };
+
+export const updateEventWithImage = async (req, res) => {
+  try {
+    const { eventId, userId } = req.params; // Get userId and eventId from the URL parameters
+
+    const user_id = userId;
+    // Log to check if userId and eventId are available
+    console.log("req.params=", req.params);
+    console.log("peventId=", eventId);
+    console.log("puserId=", user_id);
+
+
+
+    // Find the event by its ID
+    const event = await Event.findById(eventId);
+    if (!event) {
+      return res.status(404).json({ success: false, message: "Event not found." });
+    }
+    console.log("eventId=",eventId)
+    console.log("req.body=",req.body)
+    console.log("event=",event)
+    console.log("req.file=",req.file)
+    // Construct image URL
+    if (req.file) {
+      const eventImagePath = `http://localhost:4000/api/event/upload/events/${user_id}/${eventId}/${req.file.filename}`;
+      event.eventImage = eventImagePath;  // Set the image URL on the event
+      await event.save();  // Save the updated event
+    }
+
+    console.log("req.file: ",req.file)
+    // Return the updated event
+    return res.status(200).json({
+      success: true,
+      message: "Event image uploaded successfully",
+      event: event,
+    });
+  } catch (error) {
+    console.error("Error updating event with image:", error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Create event with location details
+// export const createEvent = async (req, res) => {
+//     try {
+//         const {
+//             eventName,
+//             description,
+//             category,
+//             maxCapacity,
+//             is_virtual,
+//             user_id, // Changed from created_by to user_id
+//             date,
+//             location, // Accept location object
+//         } = req.body;
+
+//         console.log("created event: ", req.body)
+//         // Validate location (latitude and longitude are no longer needed)
+//         if (!location || !location.venueName || !location.streetAddress || !location.city || !location.state || !location.postalCode || !location.country) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "Location details are required and must include venueName, streetAddress, city, state, postalCode, and country.",
+//             });
+//         }
+
+//         const newEvent = new Event({
+//             eventName,
+//             description,
+//             category,
+//             maxCapacity,
+//             is_virtual,
+//             user_id, // Changed from created_by to user_id
+//             date,
+//             location, // Save location details
+//             createdAt: Date.now(), // Adding createdAt attribute
+//         });
+
+//         const savedEvent = await newEvent.save();
+
+//          // If an event image is uploaded, save its URL after the event is created
+//          let eventImage = "";
+//          if (req.file) {
+//              const eventImagePath = `http://localhost:4000/api/events/upload/events/${user_id}/${savedEvent._id}/${req.file.filename}`;
+//              eventImage = eventImagePath;
+ 
+//              // Update the event with the event image URL
+//              savedEvent.eventImage = eventImage;
+//              await savedEvent.save();
+//          }
+ 
+//         res.status(201).json({
+//             success: true,
+//             message: "Event created successfully",
+//             event: savedEvent,
+//         });
+//     } catch (error) {
+//         res.status(500).json({ success: false, error: error.message });
+//     }
+// };
 
 
 
