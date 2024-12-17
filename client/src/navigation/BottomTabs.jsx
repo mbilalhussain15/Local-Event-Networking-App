@@ -20,7 +20,7 @@ const EventsStack = createStackNavigator();
 const EventsStackNavigator = () => (
   <EventsStack.Navigator>
     <EventsStack.Screen 
-      name="Events" 
+      name="Event" 
       component={EventsScreen} 
       options={{ headerShown: false }} 
     />
