@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useCallback } from 'react';
 import { ActivityIndicator, Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import DeviceInfo from 'react-native-device-info';
@@ -6,16 +6,34 @@ import { useGetEventsQuery } from '../redux/slices/api/eventApiSlice'; // Import
 import AddEventCard from '../components/AddEventCard';
 import Header from '../components/Header';
 import { UserContext } from '../context/UserContext';
-import { useNavigation } from '@react-navigation/native'; 
+import { useNavigation, useFocusEffect } from '@react-navigation/native'; 
+
 
 const ExploreScreen = () => {
   const { t } = useTranslation();
-  const { user } = useContext(UserContext);
+  const { user, refreshFlag  } = useContext(UserContext);
   const navigation = useNavigation();
 
   const [updatedEvents, setUpdatedEvents] = useState([]);
-  const { data: events, isLoading, isError } = useGetEventsQuery();
+  const { data: events, isLoading, isError, refetch: refetchEvents } = useGetEventsQuery();
+ 
+ // Trigger refetch when the screen comes into focus
+ useFocusEffect(
+  useCallback(() => {
+    console.log('Home tab focused. Refetching events...');
+    refetchEvents(); // Re-fetch data when the tab is focused
+  }, [refetchEvents])
+);
 
+// Handle refreshFlag for programmatic updates
+useEffect(() => {
+  if (refreshFlag) {
+    console.log('Refresh flag detected. Refetching events...');
+    refetchEvents();
+  }
+}, [refreshFlag, refetchEvents]);
+
+  
   const handleNotificationPress = () => {
     Alert.alert(t('explore.navBar.notifications'));
   };

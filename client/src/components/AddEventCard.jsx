@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useState,useContext } from 'react';
 import {
   Alert,
   Image,
@@ -19,6 +19,7 @@ import Toast from 'react-native-toast-message';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useTranslation } from 'react-i18next';
+
 
 const AddEventCard = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -44,7 +45,51 @@ const AddEventCard = () => {
   const [createEvent] = useCreateEventMutation();
   const [uploadEventImage] = useUploadEventImageMutation();
 
+  const validateFields = () => {
+    const newErrors = {};
+    if (!eventName.trim()) newErrors.eventName = 'Event name is required';
+    if (!description.trim()) newErrors.description = 'Description is required';
+    if (!category) newErrors.category = 'Category is required';
+    if (!maxCapacity || isNaN(maxCapacity) || parseInt(maxCapacity, 10) <= 0) {
+      newErrors.maxCapacity = 'Max capacity must be a positive number';
+    }
+    if (!date) newErrors.date = 'Date is required';
+    if (!isVirtual) {
+      if (!venueName.trim()) newErrors.venueName = 'Venue name is required';
+      if (!streetAddress.trim()) newErrors.streetAddress = 'Street address is required';
+      if (!city.trim()) newErrors.city = 'City is required';
+      if (!state.trim()) newErrors.state = 'State is required';
+      if (!postalCode.trim()) newErrors.postalCode = 'Postal code is required';
+      if (!country.trim()) newErrors.country = 'Country is required';
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const resetFields = () => {
+    setEventName('');
+    setDescription('');
+    setCategory('');
+    setMaxCapacity('');
+    setIsVirtual(false);
+    setDate(new Date());
+    setVenueName('');
+    setStreetAddress('');
+    setCity('');
+    setState('');
+    setPostalCode('');
+    setCountry('');
+    setImageUri('');
+    setErrors({});
+  };
+
   const handleSubmit = async () => {
+
+    if (!validateFields()) {
+      Alert.alert('Validation Error', 'Please fix the errors before submitting');
+      return;
+    }
+
     const newEvent = {
       user_id: user_Id,
       eventName,
@@ -64,6 +109,7 @@ const AddEventCard = () => {
     };
 
     try {
+     
       const response = await createEvent(newEvent).unwrap();
       Toast.show({
         type: 'success',
@@ -73,26 +119,30 @@ const AddEventCard = () => {
         bottomOffset: 100,
       });
 
-      const eventId = response.event._id;
+      const eventId = response.event._id
+    
+    if (imageUri) {
+      const imageName = imageUri.split('/').pop();
+      const imageFile = {
+        uri: imageUri,
+        type: 'image/jpeg',
+        name: imageName,
+      };
 
-      if (imageUri) {
-        const imageName = imageUri.split('/').pop();
-        const imageFile = {
-          uri: imageUri,
-          type: 'image/jpeg',
-          name: imageName,
-        };
+      
+      const imageFormData = new FormData();
+      imageFormData.append('eventImage', imageFile); 
 
-        const imageFormData = new FormData();
-        imageFormData.append('eventImage', imageFile);
-
-        await uploadEventImage({ user_Id, eventId, formData: imageFormData });
-      }
-
+      console.log("imageFormData:", imageFormData);
+    
+      await uploadEventImage({user_Id, eventId, formData: imageFormData });
+    }
+     
       setModalVisible(false);
+      resetFields();
     } catch (error) {
-      Alert.alert(t('Error'), t('addEvent.errorMessage'));
-      console.error('Error creating event:', error);
+      Alert.alert('Error', 'Failed to create the event. Please try again.');
+    
     }
   };
 
@@ -117,7 +167,7 @@ const AddEventCard = () => {
   const handleDateChange = (event, selectedDate) => {
     setShowDatePicker(false);
     if (selectedDate) {
-      setDate(new Date(selectedDate));
+      setDate(new Date(selectedDate)); 
     }
   };
 
@@ -153,12 +203,14 @@ const AddEventCard = () => {
               value={eventName}
               onChangeText={setEventName}
             />
-            <TextInput
+           <TextInput
               style={styles.input}
               placeholder={t('addEvent.description')}
               value={description}
               onChangeText={setDescription}
               multiline
+              scrollEnabled={true} 
+           
             />
             <Dropdown
               style={styles.dropdown}
@@ -173,9 +225,12 @@ const AddEventCard = () => {
             />
             <TextInput
               style={styles.input}
-              placeholder={t('addEvent.maxCapacity')}
-              value={maxCapacity}
-              onChangeText={setMaxCapacity}
+              placeholder="Postal Code"
+              value={postalCode}
+              onChangeText={(text) => {
+                const numericValue = text.replace(/[^0-9]/g, '');
+                setPostalCode(numericValue);
+              }}
               keyboardType="numeric"
             />
             <View style={styles.switchContainer}>
@@ -200,13 +255,56 @@ const AddEventCard = () => {
               )}
             </View>
 
-            <TextInput style={styles.input} placeholder={t('addEvent.venueName')} value={venueName} onChangeText={setVenueName} />
-            <TextInput style={styles.input} placeholder={t('addEvent.streetAddress')} value={streetAddress} onChangeText={setStreetAddress} />
-            <TextInput style={styles.input} placeholder={t('addEvent.city')} value={city} onChangeText={setCity} />
-            <TextInput style={styles.input} placeholder={t('addEvent.state')} value={state} onChangeText={setState} />
-            <TextInput style={styles.input} placeholder={t('addEvent.postalCode')} value={postalCode} onChangeText={setPostalCode} />
-            <TextInput style={styles.input} placeholder={t('addEvent.country')} value={country} onChangeText={setCountry} />
-
+            <TextInput
+              style={styles.input}
+              placeholder="Venue Name"
+              value={venueName}
+              onChangeText={setVenueName}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Street Address"
+              value={streetAddress}
+              onChangeText={setStreetAddress}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="City"
+              value={city}
+              onChangeText={(text) => {
+                const alphabeticValue = text.replace(/[^a-zA-Z\s]/g, '');
+                setCity(alphabeticValue);
+              }}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="State"
+              value={state}
+              onChangeText={(text) => {
+                const alphabeticValue = text.replace(/[^a-zA-Z\s]/g, '');
+                setState(alphabeticValue);
+              }}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Postal Code"
+              value={postalCode}
+              onChangeText={(text) => {
+                const numericValue = text.replace(/[^0-9]/g, '');
+                setPostalCode(numericValue);
+              }}
+              keyboardType="numeric"
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Country"
+              value={country}
+              onChangeText={(text) => {
+                const alphabeticValue = text.replace(/[^a-zA-Z\s]/g, '');
+                setCountry(alphabeticValue);
+              }}
+            />
+          
             <View style={styles.imageUploadContainer}>
               <TouchableOpacity
                 style={styles.imageUploadButton}
@@ -305,9 +403,9 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   buttonContainer: {
-    flexDirection: 'row', // Aligns the buttons side by side
-    justifyContent: 'space-between', // Adds space between the buttons
-    marginTop: 20, // Adds space from previous elements
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    marginTop: 20, 
   },
   saveButton: {
     backgroundColor: '#5C3BE7', 
@@ -361,7 +459,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 5,
     right: 5,
-    zIndex: 1, // Ensure it's on top of the image
+    zIndex: 1, 
   },
 });
 

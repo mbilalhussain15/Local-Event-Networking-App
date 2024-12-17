@@ -1,19 +1,18 @@
-import React, { useContext } from 'react';
+import React, {useEffect, useContext,useCallback } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
 import { useGetTicketsByUserIdQuery } from '../redux/slices/api/ticketApiSlice'; // API hook
 import { useGetEventsQuery } from '../redux/slices/api/eventApiSlice'; // Assuming you have an events API hook
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserContext } from '../context/UserContext';
 import EventsHeader from '../components/EventsHeader';
-import { useTranslation } from 'react-i18next'; // Import translation hook
+import {useFocusEffect } from '@react-navigation/native'; 
 
 const TicketsList = () => {
-  const { t } = useTranslation(); // Initialize translation hook
-  const { user } = useContext(UserContext); // Access user data from context
+  const { user, refreshFlag  } = useContext(UserContext); // Access user data from context
   const userId = user?.user?._id;
 
   // Use the API hook with userId to get tickets
-  const { data: tickets, isLoading, isError, error } = useGetTicketsByUserIdQuery(userId, {
+  const { data: tickets, isLoading, isError, error, refetch: refetchTickets } = useGetTicketsByUserIdQuery(userId, {
     skip: !userId, // Skip fetching if userId is not available
   });
 
@@ -29,6 +28,18 @@ const TicketsList = () => {
     };
   });
 
+  useFocusEffect(
+    useCallback(() => {
+      console.log('Home tab focused. Refetching events...');
+      refetchTickets(); // Re-fetch data when the tab is focused
+    }, [refetchTickets])
+  );
+
+  useEffect(() => {
+    if (refreshFlag) {
+      refetchTickets(); // Re-fetch tickets when refreshFlag changes
+    }
+  }, [refreshFlag, refetchTickets]);
   // Render each ticket item
   const renderItem = ({ item }) => (
     <View style={styles.ticketContainer}>
