@@ -10,15 +10,17 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Dropdown } from 'react-native-element-dropdown';
 import { UserContext } from '../context/UserContext';
 import { useCreateEventMutation } from '../redux/slices/api/eventApiSlice.js';
 import Toast from 'react-native-toast-message';
+import { useTranslation } from 'react-i18next';
+
 
 const AddEventCard = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const{t} = useTranslation();
 
   const [isModalVisible, setModalVisible] = useState(false);
   const [eventName, setEventName] = useState('');
