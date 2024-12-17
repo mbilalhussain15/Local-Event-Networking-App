@@ -18,9 +18,11 @@ import { useCreateEventMutation,useUploadEventImageMutation } from '../redux/sli
 import Toast from 'react-native-toast-message';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useTranslation } from 'react-i18next';
 
 const AddEventCard = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const{t} = useTranslation();
   const [isModalVisible, setModalVisible] = useState(false);
   const [eventName, setEventName] = useState('');
   const [description, setDescription] = useState('');
