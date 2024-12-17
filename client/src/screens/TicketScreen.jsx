@@ -6,8 +6,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserContext } from '../context/UserContext';
 import EventsHeader from '../components/EventsHeader';
 import {useFocusEffect } from '@react-navigation/native'; 
+import { useTranslation } from 'react-i18next';
 
 const TicketsList = () => {
+  const {t} = useTranslation();
   const { user, refreshFlag  } = useContext(UserContext); // Access user data from context
   const userId = user?.user?._id;
 
