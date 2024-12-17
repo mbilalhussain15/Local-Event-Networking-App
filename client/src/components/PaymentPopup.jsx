@@ -117,7 +117,6 @@ const PaymentPopup = ({event, user, isVisible, onClose }) => {
       setStep(4); 
 
     } catch (error) {
-      console.error('Payment process failed:', error);
       Alert.alert('Error', error.data.error || 'An error occurred during payment.');
     }
     finally {
