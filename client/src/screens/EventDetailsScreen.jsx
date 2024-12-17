@@ -17,6 +17,7 @@ import { useGetUserByIdQuery } from '../redux/slices/api/authApiSlice';
 import { useGetEventByIdQuery } from '../redux/slices/api/eventApiSlice';
 import { useTranslation } from 'react-i18next';  // Import the translation hook
 import { UserContext } from '../context/UserContext';
+import Tts from 'react-native-tts';
 
 // Helper function to get the device IP address
 const getDeviceIp = async () => {
@@ -65,6 +66,14 @@ const EventDetailsScreen = ({ route, navigation }) => {
     }
   };
 
+  const handleSpeak = (text) => {
+    Tts.stop(); // Stop any ongoing speech
+    Tts.speak(text, { androidParams: { KEY_PARAM_VOLUME: 1.0 } });
+  };
+
+  const handleStop = () => {
+    Tts.stop();
+  };
 
   const { t } = useTranslation();  // Use translation hook
   const { eventId } = route.params;
@@ -218,16 +227,25 @@ console.log("event=",event?.eventImage)
               <TouchableOpacity onPress={() => handlePhonePress(user.user.phone)}>
                 <Text style={styles.subLabel}>{user.user.phone}</Text>
               </TouchableOpacity>
-                  ) : (
-                    <Text style={styles.subLabel}></Text>
-                  )}
+            ) : (
+              <Text style={styles.subLabel}></Text>
+            )}
           </View>
         </View>
 
+
         {/* About Event */}
-        <Text style={styles.sectionTitle}>{t('About Event')}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'between' }}>
+          <Text style={styles.sectionTitle}>{t('About Event')}</Text>
+          <TouchableOpacity style={{ marginLeft: 180, justifyContent: 'space-between' }} onPress={() => handleSpeak(event.description)}>
+            <Icon name="volume-high-outline" size={40} color="#5C3BE7" />
+          </TouchableOpacity>
+          <TouchableOpacity style={{ marginLeft: 10 }} onPress={handleStop}>
+            <Icon name="stop-circle-outline" size={40} color="#5C3BE7" />
+          </TouchableOpacity>
+        </View>
         <Text style={styles.description}>{event.description}</Text>
-      </View>
+        </View>
 
       {/* Buy Ticket Button */}
       <TouchableOpacity
