@@ -15,9 +15,20 @@ export const ticketApiSlice = apiSlice.injectEndpoints({
       }),
     }),
 
+    getTicketsByUserId: builder.query({
+      query: (userId) => ({
+        url: `${TICKET_URL}/getTicketsByUserId/${userId}`,
+        method: "GET",
+        credentials: "include",
+      }),
+    }),
+  
   }),
 });
 
+    
+
 export const {
-  useCreateTicketMutation
+  useCreateTicketMutation,
+  useGetTicketsByUserIdQuery,
 } = ticketApiSlice;
