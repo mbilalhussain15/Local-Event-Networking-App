@@ -5,6 +5,7 @@ export const UserContext = createContext();
 
 export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [refreshFlag, setRefreshFlag] = useState(false);
 
   // Load user data from AsyncStorage when the app starts
   useEffect(() => {
@@ -21,10 +22,15 @@ export function UserProvider({ children }) {
   const updateUser = async (userData) => {
     setUser(userData); // Update the user state in context
     await AsyncStorage.setItem('user', JSON.stringify(userData)); // Persist the updated data
+    triggerRefresh();
   };
-
+// Function to trigger refresh
+const triggerRefresh = () => {
+  setRefreshFlag(true);
+  setTimeout(() => setRefreshFlag(false), 100); // Reset refresh flag
+};
   return (
-    <UserContext.Provider value={{ user, setUser: updateUser }}>
+    <UserContext.Provider value={{ user, setUser: updateUser,  refreshFlag, triggerRefresh  }}>
       {children}
     </UserContext.Provider>
   );

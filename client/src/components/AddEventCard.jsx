@@ -1,4 +1,4 @@
-import React, {useEffect, useState,useContext } from 'react';
+import React, { useState,useContext } from 'react';
 import {
   Alert,
   Image,
@@ -19,6 +19,7 @@ import Toast from 'react-native-toast-message';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useTranslation } from 'react-i18next';
+
 
 const AddEventCard = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -44,7 +45,51 @@ const AddEventCard = () => {
   const [createEvent, { isLoading }] = useCreateEventMutation();
   const [uploadEventImage] = useUploadEventImageMutation();
 
+  const validateFields = () => {
+    const newErrors = {};
+    if (!eventName.trim()) newErrors.eventName = 'Event name is required';
+    if (!description.trim()) newErrors.description = 'Description is required';
+    if (!category) newErrors.category = 'Category is required';
+    if (!maxCapacity || isNaN(maxCapacity) || parseInt(maxCapacity, 10) <= 0) {
+      newErrors.maxCapacity = 'Max capacity must be a positive number';
+    }
+    if (!date) newErrors.date = 'Date is required';
+    if (!isVirtual) {
+      if (!venueName.trim()) newErrors.venueName = 'Venue name is required';
+      if (!streetAddress.trim()) newErrors.streetAddress = 'Street address is required';
+      if (!city.trim()) newErrors.city = 'City is required';
+      if (!state.trim()) newErrors.state = 'State is required';
+      if (!postalCode.trim()) newErrors.postalCode = 'Postal code is required';
+      if (!country.trim()) newErrors.country = 'Country is required';
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const resetFields = () => {
+    setEventName('');
+    setDescription('');
+    setCategory('');
+    setMaxCapacity('');
+    setIsVirtual(false);
+    setDate(new Date());
+    setVenueName('');
+    setStreetAddress('');
+    setCity('');
+    setState('');
+    setPostalCode('');
+    setCountry('');
+    setImageUri('');
+    setErrors({});
+  };
+
   const handleSubmit = async () => {
+
+    if (!validateFields()) {
+      Alert.alert('Validation Error', 'Please fix the errors before submitting');
+      return;
+    }
+
     const newEvent = {
       user_id: user_Id,
       eventName,
@@ -66,9 +111,7 @@ const AddEventCard = () => {
 
    
     try {
-      // Alert.alert(newEvent);
-      
-      // Call the API
+     
       const response = await createEvent(newEvent).unwrap();
       console.log("response= ",response )
       Toast.show({
@@ -81,8 +124,7 @@ const AddEventCard = () => {
       });
 
       const eventId = response.event._id
-      // console.log("eventId= ",eventId )
-      // Step 2: If image exists, upload it
+    
     if (imageUri) {
       const imageName = imageUri.split('/').pop();
       const imageFile = {
@@ -93,17 +135,18 @@ const AddEventCard = () => {
 
       
       const imageFormData = new FormData();
-      imageFormData.append('eventImage', imageFile);  // Attach the image
+      imageFormData.append('eventImage', imageFile); 
 
       console.log("imageFormData:", imageFormData);
-      // Make the API call to upload the image
+    
       await uploadEventImage({user_Id, eventId, formData: imageFormData });
     }
      
       setModalVisible(false);
+      resetFields();
     } catch (error) {
       Alert.alert('Error', 'Failed to create the event. Please try again.');
-      console.error('Error creating event:', error);
+    
     }
   };
   const handleImageUpload = () => {
@@ -128,7 +171,7 @@ const AddEventCard = () => {
   const handleDateChange = (event, selectedDate) => {
     setShowDatePicker(false);
     if (selectedDate) {
-      setDate(new Date(selectedDate)); // Ensure a valid Date object is stored
+      setDate(new Date(selectedDate)); 
     }
   };
 
@@ -164,12 +207,14 @@ const AddEventCard = () => {
               value={eventName}
               onChangeText={setEventName}
             />
-            <TextInput
+           <TextInput
               style={styles.input}
               placeholder="Description"
               value={description}
               onChangeText={setDescription}
               multiline
+              scrollEnabled={true} 
+           
             />
             <Dropdown
               style={styles.dropdown}
@@ -184,9 +229,12 @@ const AddEventCard = () => {
             />
             <TextInput
               style={styles.input}
-              placeholder="Max Capacity"
-              value={maxCapacity}
-              onChangeText={setMaxCapacity}
+              placeholder="Postal Code"
+              value={postalCode}
+              onChangeText={(text) => {
+                const numericValue = text.replace(/[^0-9]/g, '');
+                setPostalCode(numericValue);
+              }}
               keyboardType="numeric"
             />
             
@@ -232,27 +280,40 @@ const AddEventCard = () => {
               style={styles.input}
               placeholder="City"
               value={city}
-              onChangeText={setCity}
+              onChangeText={(text) => {
+                const alphabeticValue = text.replace(/[^a-zA-Z\s]/g, '');
+                setCity(alphabeticValue);
+              }}
             />
             <TextInput
               style={styles.input}
               placeholder="State"
               value={state}
-              onChangeText={setState}
+              onChangeText={(text) => {
+                const alphabeticValue = text.replace(/[^a-zA-Z\s]/g, '');
+                setState(alphabeticValue);
+              }}
             />
             <TextInput
               style={styles.input}
               placeholder="Postal Code"
               value={postalCode}
-              onChangeText={setPostalCode}
+              onChangeText={(text) => {
+                const numericValue = text.replace(/[^0-9]/g, '');
+                setPostalCode(numericValue);
+              }}
+              keyboardType="numeric"
             />
             <TextInput
               style={styles.input}
               placeholder="Country"
               value={country}
-              onChangeText={setCountry}
+              onChangeText={(text) => {
+                const alphabeticValue = text.replace(/[^a-zA-Z\s]/g, '');
+                setCountry(alphabeticValue);
+              }}
             />
-            {/* Image Upload Section */}
+          
             <View style={styles.imageUploadContainer}>
               <TouchableOpacity
                 style={styles.imageUploadButton}
@@ -356,9 +417,9 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   buttonContainer: {
-    flexDirection: 'row', // Aligns the buttons side by side
-    justifyContent: 'space-between', // Adds space between the buttons
-    marginTop: 20, // Adds space from previous elements
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    marginTop: 20, 
   },
   saveButton: {
     backgroundColor: '#5C3BE7', 
@@ -412,7 +473,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 5,
     right: 5,
-    zIndex: 1, // Ensure it's on top of the image
+    zIndex: 1, 
   },
 });
 
