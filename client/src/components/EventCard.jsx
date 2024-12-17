@@ -1,11 +1,13 @@
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-const EventCard = ({ eventName, category, location, imageUrl, onPress }) => (
-  <TouchableOpacity style={styles.wrapper} onPress={onPress}>
+const EventCard = ({ eventName, category, location, imageUrl, onPress }) => {
+  const imageSource = imageUrl && imageUrl.trim() !== '' ? { uri: imageUrl } : require('../assets/eventsImages/event.jpg'); 
+return(
+    <TouchableOpacity style={styles.wrapper} onPress={onPress}>
     <View style={styles.card}>
       <View style={styles.contentWrapper}>
-        <Image source={{ uri: imageUrl }} style={styles.image} />
+      <Image source={imageSource} style={styles.image} />
         <View style={styles.textContainer}>
           <Text style={styles.eventName}>{eventName}</Text>
           <Text style={styles.eventCategory}>Category: {category}</Text>
@@ -16,7 +18,9 @@ const EventCard = ({ eventName, category, location, imageUrl, onPress }) => (
       </View>
     </View>
   </TouchableOpacity>
-);
+  )
+  
+}
 
 const styles = StyleSheet.create({
   wrapper: {

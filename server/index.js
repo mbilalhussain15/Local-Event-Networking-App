@@ -8,6 +8,9 @@ import cookieParser from 'cookie-parser';
 import connectDB from './utils/mongoDB.js';
 import { initializeSocket } from './controllers/notificationController.js';  // Import the socket initializer
 import routes from './routes/index.js';
+import bodyParser from 'body-parser';
+import path from 'path';
+
 
 dotenv.config();
 
@@ -19,6 +22,8 @@ initializeSocket(server);
 
 // Middleware setup
 app.use(express.json());
+
+
 //app.use(cors());
 app.use(cors({
   origin: '*', // Allow all origins (change to specific domain in production)
@@ -34,6 +39,18 @@ connectDB();
 
 // API routes
 app.use("/api", routes);
+
+
+// Middleware for parsing JSON data
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));  // For parsing form-data (non-file data)
+
+// This is important for file uploads with Multer
+app.use(express.urlencoded({ extended: true }));  // Allow parsing form data in POST requests
+
+const uploadDir = path.join(process.cwd(), 'upload');
+app.use('/api/event/upload', express.static(uploadDir));
+app.use('/api/users/upload', express.static(uploadDir));
 
 // Start the server
 const PORT = process.env.PORT || 4000;
