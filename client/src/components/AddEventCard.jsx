@@ -1,4 +1,4 @@
-import React, {useEffect, useState,useContext } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import {
   Alert,
   Image,
@@ -14,7 +14,7 @@ import {
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Dropdown } from 'react-native-element-dropdown';
 import { UserContext } from '../context/UserContext';
-import { useCreateEventMutation,useUploadEventImageMutation } from '../redux/slices/api/eventApiSlice.js';
+import { useCreateEventMutation, useUploadEventImageMutation } from '../redux/slices/api/eventApiSlice.js';
 import Toast from 'react-native-toast-message';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -22,7 +22,7 @@ import { useTranslation } from 'react-i18next';
 
 const AddEventCard = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const{t} = useTranslation();
+  const { t } = useTranslation();
   const [isModalVisible, setModalVisible] = useState(false);
   const [eventName, setEventName] = useState('');
   const [description, setDescription] = useState('');
@@ -39,9 +39,9 @@ const AddEventCard = () => {
   const [country, setCountry] = useState('');
   const [imageUri, setImageUri] = useState('');
   const { user } = useContext(UserContext);
-  const user_Id= user.user._id;
+  const user_Id = user.user._id;
 
-  const [createEvent, { isLoading }] = useCreateEventMutation();
+  const [createEvent] = useCreateEventMutation();
   const [uploadEventImage] = useUploadEventImageMutation();
 
   const handleSubmit = async () => {
@@ -53,7 +53,6 @@ const AddEventCard = () => {
       maxCapacity: parseInt(maxCapacity, 10),
       is_virtual: isVirtual,
       date,
-      
       location: {
         venueName,
         streetAddress,
@@ -64,55 +63,46 @@ const AddEventCard = () => {
       },
     };
 
-   
     try {
-      // Alert.alert(newEvent);
-      
-      // Call the API
       const response = await createEvent(newEvent).unwrap();
-      console.log("response= ",response )
       Toast.show({
         type: 'success',
-        text1: 'Event Created',
-        text2: 'Your event has been created successfully!',
+        text1: t('Success'),
+        text2: t('addEvent.successMessage'),
         position: 'bottom',
-        bottomOffset: 100, 
-       
+        bottomOffset: 100,
       });
 
-      const eventId = response.event._id
-      // console.log("eventId= ",eventId )
-      // Step 2: If image exists, upload it
-    if (imageUri) {
-      const imageName = imageUri.split('/').pop();
-      const imageFile = {
-        uri: imageUri,
-        type: 'image/jpeg',
-        name: imageName,
-      };
+      const eventId = response.event._id;
 
-      
-      const imageFormData = new FormData();
-      imageFormData.append('eventImage', imageFile);  // Attach the image
+      if (imageUri) {
+        const imageName = imageUri.split('/').pop();
+        const imageFile = {
+          uri: imageUri,
+          type: 'image/jpeg',
+          name: imageName,
+        };
 
-      console.log("imageFormData:", imageFormData);
-      // Make the API call to upload the image
-      await uploadEventImage({user_Id, eventId, formData: imageFormData });
-    }
-     
+        const imageFormData = new FormData();
+        imageFormData.append('eventImage', imageFile);
+
+        await uploadEventImage({ user_Id, eventId, formData: imageFormData });
+      }
+
       setModalVisible(false);
     } catch (error) {
-      Alert.alert('Error', 'Failed to create the event. Please try again.');
+      Alert.alert(t('Error'), t('addEvent.errorMessage'));
       console.error('Error creating event:', error);
     }
   };
+
   const handleImageUpload = () => {
     launchImageLibrary({ mediaType: 'photo', quality: 1 }, (response) => {
       if (response.didCancel) {
         console.log('User cancelled image picker');
       } else if (response.errorMessage) {
         console.log('ImagePicker Error: ', response.errorMessage);
-        Alert.alert('Error', 'Failed to upload image');
+        Alert.alert(t('Error'), t('addEvent.imageError'));
       } else {
         const uri = response.assets[0]?.uri;
         setImageUri(uri);
@@ -124,29 +114,28 @@ const AddEventCard = () => {
     setImageUri('');
   };
 
-
   const handleDateChange = (event, selectedDate) => {
     setShowDatePicker(false);
     if (selectedDate) {
-      setDate(new Date(selectedDate)); // Ensure a valid Date object is stored
+      setDate(new Date(selectedDate));
     }
   };
 
   const categories = [
-    { label: 'Conference', value: 'Conference' },
-    { label: 'Workshop', value: 'Workshop' },
-    { label: 'Seminar', value: 'Seminar' },
-    { label: 'Meetup', value: 'Meetup' },
-    { label: 'Other', value: 'Other' },
-   
+    { label: t('addEvent.categoryOptions.conference'), value: 'Conference' },
+    { label: t('addEvent.categoryOptions.workshop'), value: 'Workshop' },
+    { label: t('addEvent.categoryOptions.seminar'), value: 'Seminar' },
+    { label: t('addEvent.categoryOptions.meetup'), value: 'Meetup' },
+    { label: t('addEvent.categoryOptions.other'), value: 'Other' },
   ];
+
   return (
     <View style={styles.container}>
       <TouchableOpacity
         style={styles.addButton}
         onPress={() => setModalVisible(true)}
       >
-        <Text style={styles.addButtonText}>Add New Event</Text>
+        <Text style={styles.addButtonText}>{t('addEvent.addNewEvent')}</Text>
       </TouchableOpacity>
 
       <Modal
@@ -157,16 +146,16 @@ const AddEventCard = () => {
       >
         <View style={styles.modalContainer}>
           <ScrollView contentContainerStyle={styles.modalContent}>
-            <Text style={styles.title}>Create New Event</Text>
+            <Text style={styles.title}>{t('addEvent.title')}</Text>
             <TextInput
               style={styles.input}
-              placeholder="Event Name"
+              placeholder={t('addEvent.eventName')}
               value={eventName}
               onChangeText={setEventName}
             />
             <TextInput
               style={styles.input}
-              placeholder="Description"
+              placeholder={t('addEvent.description')}
               value={description}
               onChangeText={setDescription}
               multiline
@@ -175,33 +164,28 @@ const AddEventCard = () => {
               style={styles.dropdown}
               data={categories}
               search
-              searchPlaceholder="Search..."
+              searchPlaceholder={t('Search...')}
               labelField="label"
               valueField="value"
-              placeholder="Select a Category"
+              placeholder={t('addEvent.category')}
               value={category}
               onChange={(item) => setCategory(item.value)}
             />
             <TextInput
               style={styles.input}
-              placeholder="Max Capacity"
+              placeholder={t('addEvent.maxCapacity')}
               value={maxCapacity}
               onChangeText={setMaxCapacity}
               keyboardType="numeric"
             />
-            
             <View style={styles.switchContainer}>
-              <Text>Is Virtual</Text>
-              <Switch
-                value={isVirtual}
-                onValueChange={setIsVirtual}
-              />
+              <Text>{t('addEvent.isVirtual')}</Text>
+              <Switch value={isVirtual} onValueChange={setIsVirtual} />
             </View>
-        
             <View style={styles.inputContainer}>
               <TextInput
                 style={styles.input}
-                placeholder="Select Date"
+                placeholder={t('addEvent.date')}
                 value={date instanceof Date ? date.toDateString() : ''}
                 onFocus={() => setShowDatePicker(true)}
                 showSoftInputOnFocus={false}
@@ -216,50 +200,20 @@ const AddEventCard = () => {
               )}
             </View>
 
-            <TextInput
-              style={styles.input}
-              placeholder="Venue Name"
-              value={venueName}
-              onChangeText={setVenueName}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Street Address"
-              value={streetAddress}
-              onChangeText={setStreetAddress}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="City"
-              value={city}
-              onChangeText={setCity}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="State"
-              value={state}
-              onChangeText={setState}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Postal Code"
-              value={postalCode}
-              onChangeText={setPostalCode}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Country"
-              value={country}
-              onChangeText={setCountry}
-            />
-            {/* Image Upload Section */}
+            <TextInput style={styles.input} placeholder={t('addEvent.venueName')} value={venueName} onChangeText={setVenueName} />
+            <TextInput style={styles.input} placeholder={t('addEvent.streetAddress')} value={streetAddress} onChangeText={setStreetAddress} />
+            <TextInput style={styles.input} placeholder={t('addEvent.city')} value={city} onChangeText={setCity} />
+            <TextInput style={styles.input} placeholder={t('addEvent.state')} value={state} onChangeText={setState} />
+            <TextInput style={styles.input} placeholder={t('addEvent.postalCode')} value={postalCode} onChangeText={setPostalCode} />
+            <TextInput style={styles.input} placeholder={t('addEvent.country')} value={country} onChangeText={setCountry} />
+
             <View style={styles.imageUploadContainer}>
               <TouchableOpacity
                 style={styles.imageUploadButton}
                 onPress={handleImageUpload}
               >
                 <Text style={styles.uploadButtonText}>
-                  {imageUri ? 'Change Image' : 'Upload Image'}
+                  {imageUri ? t('addEvent.changeImage') : t('addEvent.uploadImage')}
                 </Text>
               </TouchableOpacity>
               {imageUri && (
@@ -276,22 +230,17 @@ const AddEventCard = () => {
             </View>
 
             <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={() => setModalVisible(false)}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+              <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
+                <Text style={styles.cancelButtonText}>{t('addEvent.cancel')}</Text>
               </TouchableOpacity>
-              
               <TouchableOpacity style={styles.saveButton} onPress={handleSubmit}>
-                <Text style={styles.saveButtonText}>Save Event</Text>
+                <Text style={styles.saveButtonText}>{t('addEvent.saveEvent')}</Text>
               </TouchableOpacity>
             </View>
-
           </ScrollView>
         </View>
       </Modal>
-      <Toast config={{ bottomOffset: 100 }}/>
+      <Toast config={{ bottomOffset: 100 }} />
     </View>
   );
 };

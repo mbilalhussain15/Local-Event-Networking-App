@@ -5,8 +5,10 @@ import { useGetEventsQuery } from '../redux/slices/api/eventApiSlice'; // Assumi
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserContext } from '../context/UserContext';
 import EventsHeader from '../components/EventsHeader';
+import { useTranslation } from 'react-i18next'; // Import translation hook
 
 const TicketsList = () => {
+  const { t } = useTranslation(); // Initialize translation hook
   const { user } = useContext(UserContext); // Access user data from context
   const userId = user?.user?._id;
 
@@ -23,18 +25,16 @@ const TicketsList = () => {
     const event = events?.find(event => event._id === ticket.eventId);
     return {
       ...ticket,
-      eventName: event ? event.eventName : 'Unknown Event', // Default if event is not found
+      eventName: event ? event.eventName : t('tickets.unknownEvent'), // Default if event is not found
     };
   });
 
-
   // Render each ticket item
   const renderItem = ({ item }) => (
-    
     <View style={styles.ticketContainer}>
-      <Text style={styles.ticketType}>Ticket Type: {item.ticketType}</Text>
-      <Text style={styles.ticketPrice}>Price: {item.price} {item.currency}</Text>
-      <Text style={styles.eventName}>Event: {item.eventName}</Text>
+      <Text style={styles.ticketType}>{t('tickets.ticketType')}: {item.ticketType}</Text>
+      <Text style={styles.ticketPrice}>{t('tickets.price')}: {item.price} {item.currency}</Text>
+      <Text style={styles.eventName}>{t('tickets.event')}: {item.eventName}</Text>
     </View>
   );
 
@@ -42,7 +42,7 @@ const TicketsList = () => {
   if (!userId) {
     return (
       <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Please log in to view your tickets.</Text>
+        <Text style={styles.errorText}>{t('tickets.loginMessage')}</Text>
       </View>
     );
   }
@@ -51,7 +51,7 @@ const TicketsList = () => {
     return (
       <View style={styles.loaderContainer}>
         <ActivityIndicator size="large" color="#0000ff" />
-        <Text>Loading tickets...</Text>
+        <Text>{t('tickets.loadingMessage')}</Text>
       </View>
     );
   }
@@ -59,20 +59,20 @@ const TicketsList = () => {
   if (isError) {
     return (
       <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Error: {error?.data?.message || "Something went wrong!"}</Text>
+        <Text style={styles.errorText}>{t('tickets.errorMessage')}: {error?.data?.message || t('tickets.genericError')}</Text>
       </View>
     );
   }
 
   return (
     <>
-    <EventsHeader title="Your Tickets" style={styles.headerFullWidth} />
+    <EventsHeader title={t('tickets.header')} style={styles.headerFullWidth} />
     <View style={styles.container}>
       <FlatList
         data={ticketsWithEventName || []} // Ensure ticketsWithEventName is passed
         keyExtractor={(item) => (item._id ? item._id.toString() : Math.random().toString())} // Add a fallback for undefined `id`
         renderItem={renderItem}
-        ListEmptyComponent={<Text>No tickets found for this user.</Text>}
+        ListEmptyComponent={<Text>{t('tickets.noTickets')}</Text>}
       />
     </View>
     </>

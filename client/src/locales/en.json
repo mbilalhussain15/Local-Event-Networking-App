@@ -29,31 +29,45 @@
     },
 
     "addEvent": {
-    "title": "Create New Event",
+    "addNewEvent": "Add New Event",
+    "title": "Create a New Event",
     "eventName": "Event Name",
     "description": "Description",
-    "category": "Category",
-    "maxCapacity": "Max Capacity",
-    "totalTicketsSold": "Total Tickets Sold",
-    "registrationRequired": "Registration Required",
-    "isVirtual": "Is Virtual",
-    "contactEmail": "Contact Email",
-    "createdBy": "Created By",
-    "date": "Date (YYYY-MM-DD)",
+    "category": "Select Category",
+    "categoryOptions": {
+      "conference": "Conference",
+      "workshop": "Workshop",
+      "seminar": "Seminar",
+      "meetup": "Meetup",
+      "other": "Other"
+    },
+    "maxCapacity": "Maximum Capacity",
+    "isVirtual": "Is this event virtual?",
+    "date": "Select Date",
     "venueName": "Venue Name",
     "streetAddress": "Street Address",
     "city": "City",
     "state": "State",
+    "uploadImage": "Upload Image",
+    "changeImage": "Change Image",
     "postalCode": "Postal Code",
     "country": "Country",
-    "saveEvent": "Save Event",
+    "successMessage": "Event has been created successfully!",
+    "errorMessage": "Something went wrong while creating the event. Please try again.",
+    "imageError": "Error uploading the image. Please try again.",
     "cancel": "Cancel",
-    "addNewEvent": "Add New Event"
+    "saveEvent": "Save Event"
   },
+    "Success": "Success",
+    "Error": "Error",
+    "Search...": "Search...",
+
+  
    
     "home": "Home",
     "events": "Events",
     "map": "Map",
+    "ticket" : "Tickets",
     "settings": "Settings",
     "Loading details...": "Loading details...",
     "Unable to load event or user details.": "Unable to load event or user details.",
@@ -68,7 +82,6 @@
     "New Password": "New Password",
     "Confirm Password": "Confirm Password",
     "Save": "Save",
-    "Search...": "Search...",
     "Select Language": "Select Language",
     "Please select a language.": "Please select a language.",
     "New password and confirm password do not match.": "New password and confirm password do not match.",
@@ -77,12 +90,42 @@
     "Failed to update password. Please try again.": "Failed to update password. Please try again.",
     "Language updated to": "Language updated to",
     "Failed to update language. Please try again.": "Failed to update language. Please try again.",
-    "Error": "Error",
-    "Success": "Success",
     "Logout Successful": "Logout Successful",
     "You have been logged out successfully.": "You have been logged out successfully.",
     "Failed to log out. Please try again.": "Failed to log out. Please try again.",
     "Select a language": "Select a language" ,
+    "loading": "Loading Events...",
+    "error": "Failed to load events. Please try again later.",
+    "eventList": "Event List",
+
+
+    "choose_ticket": "Choose your ticket",
+    "standard_ticket": "Standard Ticket",
+    "vip_ticket": "VIP Ticket",
+    "next": "Next",
+    "payment_method": "Payment Method",
+    "paypal": "PayPal",
+    "stripe": "Stripe",
+    "credit_card": "Credit Card",
+    "card_holder_name": "Cardholder Name",
+    "card_number": "Card Number",
+    "expiry_date": "Expiry Date",
+    "cvv": "CVV",
+    "price": "Price",
+    "pay_now": "Pay Now",
+    "payment_success": "Payment Success",
+    "transaction_id": "Transaction ID",
+    "close": "Close",
+    "ticket_creation_failed": "Ticket creation failed",
+    "payment_initiation_failed": "Payment initiation failed",
+    "payment_simulation_failed": "Payment simulation failed",
+    "payment_error": "An error occurred during payment",
+    "fill_all_card_details": "Please fill in all the card details",
+    "name_error": "Only alphabets are allowed for the name",
+    "card_number_error": "Please enter a valid card number",
+    "expiry_date_error": "Please select an expiry date",
+    "cvv_error": "Please enter a valid CVV",
+    "transaction_failed": "Transaction failed. Please try again.",
 
     "profile": {
     "back": "< Back",
@@ -95,8 +138,20 @@
     "editProfile": "Edit Profile",
     "phonePlaceholder": "+491234567890",
     "save": "Save"
-    }  
-
+    },
+  
+    "tickets": {
+    "ticketType": "Ticket Type",
+    "price": "Price",
+    "event": "Event",
+    "loginMessage": "Please log in to view your tickets.",
+    "loadingMessage": "Loading tickets...",
+    "errorMessage": "Error",
+    "genericError": "Something went wrong!",
+    "header": "Your Tickets",
+    "noTickets": "No tickets found for this user.",
+    "unknownEvent": "Unknown Event"
+  }
     
 
     

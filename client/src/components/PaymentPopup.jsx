@@ -17,7 +17,6 @@ import { useCreateInitiatePaymentMutation, useCreateSimulatePaymentMutation } fr
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 const PaymentPopup = ({event, user, isVisible, onClose }) => {
-  console.log('userID:', user._id)
   const [step, setStep] = useState(1);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState(null);

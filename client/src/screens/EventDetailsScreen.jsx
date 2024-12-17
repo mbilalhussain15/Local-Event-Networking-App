@@ -24,7 +24,6 @@ const getDeviceIp = async () => {
     const ip = await DeviceInfo.getIpAddress();
     return ip;
   } catch (error) {
-    console.error('Error getting device IP:', error);
     return null;
   }
 };
@@ -71,7 +70,6 @@ const EventDetailsScreen = ({ route, navigation }) => {
 
   const { user } = useContext(UserContext); // Access user data from context
   const userId = user?.user?._id;
-    console.log(userId)
 
   // Fetch event details
   const { data: event, isLoading: eventLoading, isError: eventError } = useGetEventByIdQuery(eventId);
@@ -111,7 +109,6 @@ const EventDetailsScreen = ({ route, navigation }) => {
         country: country || '',
       });
     }
-console.log("event=",event?.eventImage)
     // Update event image URL if exists
     const updateEventImage = async () => {
       if (event?.eventImage) {
