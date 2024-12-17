@@ -18,7 +18,7 @@ const EventsScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <EventsHeader style={styles.headerFullWidth} />
+      <EventsHeader title="Event List" style={styles.headerFullWidth} />
       <FlatList
         data={events}
         keyExtractor={(item) => item._id}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -16,6 +16,7 @@ import PaymentPopup from '../components/PaymentPopup';
 import { useGetUserByIdQuery } from '../redux/slices/api/authApiSlice';
 import { useGetEventByIdQuery } from '../redux/slices/api/eventApiSlice';
 import { useTranslation } from 'react-i18next';  // Import the translation hook
+import { UserContext } from '../context/UserContext';
 
 // Helper function to get the device IP address
 const getDeviceIp = async () => {
@@ -68,12 +69,16 @@ const EventDetailsScreen = ({ route, navigation }) => {
   const { t } = useTranslation();  // Use translation hook
   const { eventId } = route.params;
 
+  const { user } = useContext(UserContext); // Access user data from context
+  const userId = user?.user?._id;
+    console.log(userId)
+
   // Fetch event details
   const { data: event, isLoading: eventLoading, isError: eventError } = useGetEventByIdQuery(eventId);
 
   // Fetch user details
-  const { data: user, isLoading: userLoading, isError: userError } = useGetUserByIdQuery(event?.user_id, {
-    skip: !event?.user_id, // Skip fetching if user_id is not available
+  const { data: userDetails, isLoading: userLoading, isError: userError } = useGetUserByIdQuery(userId, {
+    skip: !userId, // Skip fetching if userId is not available
   });
 
   const [eventDate, setEventDate] = useState('');
@@ -238,6 +243,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
         onClose={() => setIsPopupVisible(false)}
       />
     </ScrollView>
+      
   );
 };
 
