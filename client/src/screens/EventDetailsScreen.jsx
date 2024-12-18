@@ -234,7 +234,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
         {/* About Event */}
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'between' }}>
           <Text style={styles.sectionTitle}>{t('About Event')}</Text>
-          <TouchableOpacity style={{ marginLeft: 180, justifyContent: 'space-between' }} onPress={() => handleSpeak(event.description)}>
+          <TouchableOpacity style={{ marginLeft: 10, justifyContent: 'space-between' }} onPress={() => handleSpeak(event.description)}>
             <Icon name="volume-high-outline" size={40} color="#5C3BE7" />
           </TouchableOpacity>
           <TouchableOpacity style={{ marginLeft: 10 }} onPress={handleStop}>
