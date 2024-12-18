@@ -116,6 +116,7 @@ useEffect(() => {
 
   return (
     <View style={styles.container}>
+      
       <Header 
         title={t('header')}
         onNotificationPress={handleNotificationPress} 

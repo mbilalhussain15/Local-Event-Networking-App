@@ -40,8 +40,8 @@ const LanguageSwitcher = () => {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    top: 10,
-    left: 10,
+    right: 20,  // Position language switcher at the right side
+    top: 20,    // Adjust top spacing if needed
     zIndex: 1000,
   },
   button: {

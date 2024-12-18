@@ -67,7 +67,7 @@ const BottomTabs = () => {
 
             return <Icon name={iconName} size={size} color={color} />;
           },
-          tabBarLabel: t(route.name.toLowerCase()),
+          tabBarLabel:  route.name === 'Tickets' ? t('ticket') : t(route.name.toLowerCase()),
           tabBarActiveTintColor: '#5C3BE7',
           tabBarInactiveTintColor: 'gray',
           headerShown: false,

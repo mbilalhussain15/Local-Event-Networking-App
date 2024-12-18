@@ -93,6 +93,8 @@ const LoginScreen = ({ navigation }) => {
         {errors.password && <Text style={styles.errorText}>{errors.password?.message}</Text>}
       </View>
 
+      <LanguageSwitcher style={styles.languageSwitcher} />
+
       <TouchableOpacity
         style={styles.button}
         onPress={handleSubmit(onSubmit)}
@@ -170,6 +172,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginBottom: 10,
   },
+  languageSwitcher: {
+    marginVertical: 15,  // Adjust vertical margin as needed
+  },
+  
 });
 
 export default LoginScreen;

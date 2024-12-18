@@ -1,26 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native'; // Ensure correct path
+import { FlatList, StyleSheet, Text, View, Platform } from 'react-native';
 import EventCard from '../components/EventCard';
 import EventsHeader from '../components/EventsHeader';
 import { useGetEventsQuery } from '../redux/slices/api/eventApiSlice';
-import { useTranslation } from 'react-i18next'; 
+import { useTranslation } from 'react-i18next';
 import DeviceInfo from 'react-native-device-info';
-import { Platform } from 'react-native';
 
 const EventsScreen = ({ navigation }) => {
-  const { t } = useTranslation();
-  const [events, setEvents] = useState([]); // Local state for events
-  const { data, isLoading, isError } = useGetEventsQuery(); // Fetch events from API
+  const { t } = useTranslation(); // useTranslation hook for translations
+  const { data, isLoading, isError } = useGetEventsQuery(); // API hook to fetch events
+  const [events, setEvents] = useState([]); // Local state to store events
 
+  // useEffect to handle events data once fetched
   useEffect(() => {
     if (data) {
-      setEvents(data); // Replace hardcoded events with API data
+      setEvents(data); // Set the fetched data to events state
     }
   }, [data]);
 
-
-   // Function to get device IP
-   const getDeviceIp = async () => {
+  // Function to get device IP
+  const getDeviceIp = async () => {
     try {
       const ip = await DeviceInfo.getIpAddress();
       return ip;
@@ -55,6 +54,7 @@ const EventsScreen = ({ navigation }) => {
     return updatedUrl;
   };
 
+  // useEffect to update event images based on platform
   useEffect(() => {
     if (data) {
       const updateEventImages = async () => {
@@ -75,7 +75,7 @@ const EventsScreen = ({ navigation }) => {
   if (isLoading) {
     return (
       <View style={styles.container}>
-        <Text>Loading Events...</Text>
+        <Text>{t('loading')}</Text>
       </View>
     );
   }
@@ -84,15 +84,15 @@ const EventsScreen = ({ navigation }) => {
   if (isError || !events.length) {
     return (
       <View style={styles.container}>
-        <Text>Failed to load events. Please try again later.</Text>
+        <Text>{t('error')}</Text>
       </View>
     );
   }
 
-
+  // Render the events list
   return (
     <View style={styles.container}>
-      <EventsHeader title="Event List" style={styles.headerFullWidth} />
+      <EventsHeader title={t('eventList')} style={styles.headerFullWidth} />
       <FlatList
         data={events}
         keyExtractor={(item) => item._id}
