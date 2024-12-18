@@ -29,7 +29,6 @@ const AddEventCard = () => {
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
   const [maxCapacity, setMaxCapacity] = useState('');
-  const [contactEmail, setContactEmail] = useState('');
   const [isVirtual, setIsVirtual] = useState(false);
   const [date, setDate] = useState(new Date());
   const [venueName, setVenueName] = useState('');
@@ -45,26 +44,9 @@ const AddEventCard = () => {
   const [createEvent, { isLoading }] = useCreateEventMutation();
   const [uploadEventImage] = useUploadEventImageMutation();
 
-  const validateFields = () => {
-    const newErrors = {};
-    if (!eventName.trim()) newErrors.eventName = 'Event name is required';
-    if (!description.trim()) newErrors.description = 'Description is required';
-    if (!category) newErrors.category = 'Category is required';
-    if (!maxCapacity || isNaN(maxCapacity) || parseInt(maxCapacity, 10) <= 0) {
-      newErrors.maxCapacity = 'Max capacity must be a positive number';
-    }
-    if (!date) newErrors.date = 'Date is required';
-    if (!isVirtual) {
-      if (!venueName.trim()) newErrors.venueName = 'Venue name is required';
-      if (!streetAddress.trim()) newErrors.streetAddress = 'Street address is required';
-      if (!city.trim()) newErrors.city = 'City is required';
-      if (!state.trim()) newErrors.state = 'State is required';
-      if (!postalCode.trim()) newErrors.postalCode = 'Postal code is required';
-      if (!country.trim()) newErrors.country = 'Country is required';
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  const [errors, setErrors] = useState({});
+
+  
 
   const resetFields = () => {
     setEventName('');
@@ -85,10 +67,34 @@ const AddEventCard = () => {
 
   const handleSubmit = async () => {
 
-    if (!validateFields()) {
-      Alert.alert('Validation Error', 'Please fix the errors before submitting');
-      return;
-    }
+     // Validation logic
+  const validationErrors = {};
+
+  if (!eventName.trim()) validationErrors.eventName = 'Event Name is required.';
+  if (!description.trim()) validationErrors.description = 'Description is required.';
+  if (!category) validationErrors.category = 'Category is required.';
+  if (!maxCapacity || isNaN(maxCapacity) || parseInt(maxCapacity, 10) <= 0)
+    validationErrors.maxCapacity = 'Max Capacity must be a positive number.';
+  if (!venueName.trim()) validationErrors.venueName = 'Venue Name is required for physical events.';
+  if (!streetAddress.trim()) validationErrors.streetAddress = 'Street Address is required.';
+  if (!city.trim()) validationErrors.city = 'City is required.';
+  if (!state.trim()) validationErrors.state = 'State is required.';
+  if (!postalCode.trim() || isNaN(postalCode)) validationErrors.postalCode = 'Valid Postal Code is required.';
+  if (!country.trim()) validationErrors.country = 'Country is required.';
+ 
+
+  if (Object.keys(validationErrors).length > 0) {
+    setErrors(validationErrors);
+    Alert.alert('Validation Error','Please fill all required fields correctly.');
+    return;
+  }
+  // if (Object.keys(validationErrors).length > 0) {
+  //   setErrors(validationErrors);
+  //   const errorMessage = Object.values(validationErrors).join(' ') || 'Please fill all required fields correctly.';
+    
+  //   Alert.alert('Validation Error', errorMessage);
+  //   return;
+  // }
 
     const newEvent = {
       user_id: user_Id,
@@ -145,6 +151,7 @@ const AddEventCard = () => {
       setModalVisible(false);
       resetFields();
     } catch (error) {
+      console.log("error:", error);
       Alert.alert('Error', 'Failed to create the event. Please try again.');
     
     }
@@ -229,14 +236,16 @@ const AddEventCard = () => {
             />
             <TextInput
               style={styles.input}
-              placeholder="Postal Code"
-              value={postalCode}
+              placeholder="Max Capacity"
+              value={maxCapacity}
               onChangeText={(text) => {
                 const numericValue = text.replace(/[^0-9]/g, '');
-                setPostalCode(numericValue);
+                setMaxCapacity(numericValue);
               }}
               keyboardType="numeric"
+              
             />
+            
             
             <View style={styles.switchContainer}>
               <Text>Is Virtual</Text>
