@@ -1,30 +1,50 @@
-import React from 'react';
+import React,{useState} from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Modal from 'react-native-modal';
 import Icon from 'react-native-vector-icons/Ionicons';
-
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import ChangeLanguageModal from './ChangeLanguageModal';
+import ChangePasswordModal from './ChangePasswordModal';
 const HomeDrawer = ({ isVisible, closeDrawer }) => {
+  const navigation = useNavigation();
+
+    const [passwordModalVisible, setPasswordModalVisible] = useState(false);
+    const [languageModalVisible, setLanguageModalVisible] = useState(false);
+
+
   const handleProfile = () => {
+    navigation.navigate('Profile');
     closeDrawer();
     console.log('Navigating to Profile');
   };
 
   const handleChangePassword = () => {
+    setPasswordModalVisible(true);
     closeDrawer();
     console.log('Opening Change Password');
   };
 
   const handleChangeLanguage = () => {
+    
+    setLanguageModalVisible(true);
+
     closeDrawer();
     console.log('Opening Language Selection');
   };
 
   const handleLogout = () => {
+    navigation.dispatch(
+            CommonActions.reset({
+              index: 0,
+              routes: [{ name: 'Login' }],
+            })
+          );
     closeDrawer();
     console.log('Logging out');
   };
 
   return (
+    <>
     <Modal
       isVisible={isVisible}
       onBackdropPress={closeDrawer}
@@ -63,6 +83,17 @@ const HomeDrawer = ({ isVisible, closeDrawer }) => {
         </TouchableOpacity>
       </View>
     </Modal>
+     {/* Change Password Modal */}
+     <ChangePasswordModal
+        isVisible={passwordModalVisible}
+        closeModal={() => setPasswordModalVisible(false)}
+      />
+    {/* Change Language Modal */}
+    <ChangeLanguageModal
+      isVisible={languageModalVisible}
+      closeModal={() => setLanguageModalVisible(false)}
+  />
+  </>
   );
 };
 
