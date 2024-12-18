@@ -1,38 +1,53 @@
-import React, { useEffect, useState, useContext, useCallback } from 'react';
+import React, { useEffect, useState, useContext, useCallback, useRef } from 'react';
 import { ActivityIndicator, Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import i18n from 'i18next';
 import DeviceInfo from 'react-native-device-info';
 import { useGetEventsQuery } from '../redux/slices/api/eventApiSlice'; // Import the RTK Query hook
 import AddEventCard from '../components/AddEventCard';
 import Header from '../components/Header';
 import { UserContext } from '../context/UserContext';
 import { useNavigation, useFocusEffect } from '@react-navigation/native'; 
+import { useGetUserByIdQuery } from '../redux/slices/api/authApiSlice';
 
 
 const ExploreScreen = () => {
   const { t } = useTranslation();
-  const { user, refreshFlag  } = useContext(UserContext);
+  const { user, refreshFlag, setUser  } = useContext(UserContext);
   const navigation = useNavigation();
 
   const [updatedEvents, setUpdatedEvents] = useState([]);
   const { data: events, isLoading, isError, refetch: refetchEvents } = useGetEventsQuery();
- 
+  const { data: userData, error: userError, isLoading: userLoading, refetch: refetchUser } = useGetUserByIdQuery(user?.user?._id);
+  
+  const userFetchedRef = useRef(false);
+  
  // Trigger refetch when the screen comes into focus
  useFocusEffect(
   useCallback(() => {
-    console.log('Home tab focused. Refetching events...');
+    // console.log('Home tab focused. Refetching events...');
     refetchEvents(); // Re-fetch data when the tab is focused
-  }, [refetchEvents])
+    refetchUser();
+  }, [refetchEvents, refetchUser])
 );
 
 // Handle refreshFlag for programmatic updates
 useEffect(() => {
   if (refreshFlag) {
-    console.log('Refresh flag detected. Refetching events...');
+    // console.log('Refresh flag detected. Refetching events...');
     refetchEvents();
+    refetchUser();
   }
-}, [refreshFlag, refetchEvents]);
+}, [refreshFlag, refetchEvents, refetchUser]);
 
+useEffect(() => {
+  // console.log('!userFetchedRef.current= ',userFetchedRef.current);
+  if (userData && !userFetchedRef.current) {
+   
+    setUser(userData); 
+    userFetchedRef.current = true; 
+  }
+}, [userData, setUser]);
   
   const handleNotificationPress = () => {
     Alert.alert(t('explore.navBar.notifications'));
