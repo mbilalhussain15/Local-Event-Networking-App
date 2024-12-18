@@ -48,7 +48,7 @@ const PaymentPopup = ({event, user, isVisible, onClose }) => {
   }, [isVisible]);
 
   useEffect(() => {
-    if (step === 1) {
+    if (step === 4) {
       playSuccessSound();
     }
   }, [step]);
