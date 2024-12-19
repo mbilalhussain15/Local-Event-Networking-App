@@ -7,7 +7,7 @@ export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
   const [refreshFlag, setRefreshFlag] = useState(false);
 
-  // Load user data from AsyncStorage when the app starts
+ 
   useEffect(() => {
     const loadUserData = async () => {
       const storedUserData = await AsyncStorage.getItem('user');
@@ -18,16 +18,16 @@ export function UserProvider({ children }) {
     loadUserData();
   }, []);
 
-  // Save user data to AsyncStorage when it's updated
+  
   const updateUser = async (userData) => {
-    setUser(userData); // Update the user state in context
-    await AsyncStorage.setItem('user', JSON.stringify(userData)); // Persist the updated data
+    setUser(userData); 
+    await AsyncStorage.setItem('user', JSON.stringify(userData)); 
     triggerRefresh();
   };
-// Function to trigger refresh
-const triggerRefresh = () => {
+
+  const triggerRefresh = () => {
   setRefreshFlag(true);
-  setTimeout(() => setRefreshFlag(false), 100); // Reset refresh flag
+  setTimeout(() => setRefreshFlag(false), 100);
 };
   return (
     <UserContext.Provider value={{ user, setUser: updateUser,  refreshFlag, triggerRefresh  }}>

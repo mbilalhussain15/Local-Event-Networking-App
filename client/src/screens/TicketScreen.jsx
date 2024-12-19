@@ -1,7 +1,7 @@
 import React, {useEffect, useContext,useCallback } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
-import { useGetTicketsByUserIdQuery } from '../redux/slices/api/ticketApiSlice'; // API hook
-import { useGetEventsQuery } from '../redux/slices/api/eventApiSlice'; // Assuming you have an events API hook
+import { useGetTicketsByUserIdQuery } from '../redux/slices/api/ticketApiSlice';
+import { useGetEventsQuery } from '../redux/slices/api/eventApiSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserContext } from '../context/UserContext';
 import EventsHeader from '../components/EventsHeader';
@@ -10,48 +10,45 @@ import { useTranslation } from 'react-i18next';
 
 const TicketsList = () => {
   const {t} = useTranslation();
-  const { user, refreshFlag  } = useContext(UserContext); // Access user data from context
+  const { user, refreshFlag  } = useContext(UserContext); 
   const userId = user?.user?._id;
 
-  // Use the API hook with userId to get tickets
+  
   const { data: tickets, isLoading, isError, error, refetch: refetchTickets } = useGetTicketsByUserIdQuery(userId, {
-    skip: !userId, // Skip fetching if userId is not available
+    skip: !userId, 
   });
 
-  // Assuming you have a hook to fetch events data
   const { data: events } = useGetEventsQuery();
 
-  // Combine ticket data with event data
   const ticketsWithEventName = tickets?.map(ticket => {
     const event = events?.find(event => event._id === ticket.eventId);
     return {
       ...ticket,
-      eventName: event ? event.eventName : t('tickets.unknownEvent'), // Default if event is not found
+      eventName: event ? event.eventName : t('tickets.unknownEvent'), 
     };
   });
 
   useFocusEffect(
     useCallback(() => {
       console.log('Home tab focused. Refetching events...');
-      refetchTickets(); // Re-fetch data when the tab is focused
+      refetchTickets(); 
     }, [refetchTickets])
   );
 
   useEffect(() => {
     if (refreshFlag) {
-      refetchTickets(); // Re-fetch tickets when refreshFlag changes
+      refetchTickets();
     }
   }, [refreshFlag, refetchTickets]);
   // Render each ticket item
   const renderItem = ({ item }) => (
     <View style={styles.ticketContainer}>
-      <Text style={styles.ticketType}>{t('tickets.ticketType')}: {item.ticketType}</Text>
-      <Text style={styles.ticketPrice}>{t('tickets.price')}: {item.price} {item.currency}</Text>
       <Text style={styles.eventName}>{t('tickets.event')}: {item.eventName}</Text>
+      <Text style={styles.ticketPrice}>{t('tickets.price')}: {item.price} {item.currency}</Text>
+      <Text style={styles.ticketType}>{t('tickets.ticketType')}: {item.ticketType}</Text>
     </View>
   );
 
-  // Handle loading and error states
   if (!userId) {
     return (
       <View style={styles.errorContainer}>
@@ -82,8 +79,8 @@ const TicketsList = () => {
     <EventsHeader title={t('tickets.header')} style={styles.headerFullWidth} />
     <View style={styles.container}>
       <FlatList
-        data={ticketsWithEventName || []} // Ensure ticketsWithEventName is passed
-        keyExtractor={(item) => (item._id ? item._id.toString() : Math.random().toString())} // Add a fallback for undefined `id`
+        data={ticketsWithEventName || []} 
+        keyExtractor={(item) => (item._id ? item._id.toString() : Math.random().toString())} 
         renderItem={renderItem}
         ListEmptyComponent={<Text>{t('tickets.noTickets')}</Text>}
       />
@@ -115,18 +112,20 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   ticketType: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 16,
+    color: '#666',
   },
+
   ticketPrice: {
     fontSize: 16,
     color: '#666',
     marginTop: 4,
   },
   eventName: {
-    fontSize: 14,
-    color: '#888',
+    fontSize: 18,
+    color: 'black',
     marginTop: 4,
+    fontWeight: 'bold',
   },
   loaderContainer: {
     flex: 1,

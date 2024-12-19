@@ -18,13 +18,12 @@ return(
       </View>
     </View>
   </TouchableOpacity>
-  )
-  
+  )  
 }
 
 const styles = StyleSheet.create({
   wrapper: {
-    margin: 8, // Reduced margin for less space between cards
+    margin: 8,
   },
   card: {
     backgroundColor: '#FFF',
@@ -35,7 +34,7 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 6,
     padding: 12,
-    marginBottom: 12, // Reduced space between cards
+    marginBottom: 12,
     alignItems: 'flex-start',
   },
   contentWrapper: {
@@ -70,10 +69,8 @@ const styles = StyleSheet.create({
     textAlign: 'left',
   },
   headerSpacer: {
-    marginBottom: 40, // Spacing between header and the first card
+    marginBottom: 40,
   },
 });
 
 export default EventCard;
-
-// Ensure to apply the "headerSpacer" style in the parent component rendering the cards to adjust spacing between the header and the first card.

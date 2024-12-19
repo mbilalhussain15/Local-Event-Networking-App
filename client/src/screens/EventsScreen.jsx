@@ -7,18 +7,16 @@ import { useTranslation } from 'react-i18next';
 import DeviceInfo from 'react-native-device-info';
 
 const EventsScreen = ({ navigation }) => {
-  const { t } = useTranslation(); // useTranslation hook for translations
-  const { data, isLoading, isError } = useGetEventsQuery(); // API hook to fetch events
-  const [events, setEvents] = useState([]); // Local state to store events
+  const { t } = useTranslation();
+  const { data, isLoading, isError } = useGetEventsQuery(); 
+  const [events, setEvents] = useState([]);
 
-  // useEffect to handle events data once fetched
   useEffect(() => {
     if (data) {
-      setEvents(data); // Set the fetched data to events state
+      setEvents(data);
     }
   }, [data]);
 
-  // Function to get device IP
   const getDeviceIp = async () => {
     try {
       const ip = await DeviceInfo.getIpAddress();
@@ -29,7 +27,6 @@ const EventsScreen = ({ navigation }) => {
     }
   };
 
-  // Function to update the image URL based on platform and IP
   const updateImageUrlForPlatform = async (url) => {
     if (!url) return null;
 
@@ -46,7 +43,6 @@ const EventsScreen = ({ navigation }) => {
       updatedUrl = url.replace('http://localhost', `http://${deviceIp}`);
     }
 
-    // Fallback if still pointing to localhost
     if (updatedUrl.includes('localhost')) {
       updatedUrl = url;
     }
@@ -54,7 +50,6 @@ const EventsScreen = ({ navigation }) => {
     return updatedUrl;
   };
 
-  // useEffect to update event images based on platform
   useEffect(() => {
     if (data) {
       const updateEventImages = async () => {
@@ -71,7 +66,6 @@ const EventsScreen = ({ navigation }) => {
     }
   }, [data]);
 
-  // Loading state
   if (isLoading) {
     return (
       <View style={styles.container}>
@@ -80,7 +74,6 @@ const EventsScreen = ({ navigation }) => {
     );
   }
 
-  // Error state
   if (isError || !events.length) {
     return (
       <View style={styles.container}>
@@ -89,7 +82,6 @@ const EventsScreen = ({ navigation }) => {
     );
   }
 
-  // Render the events list
   return (
     <View style={styles.container}>
       <EventsHeader title={t('eventList')} style={styles.headerFullWidth} />
