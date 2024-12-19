@@ -3,7 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import LoginScreen from '../screens/LoginScreen';
 import RegistrationScreen from '../screens/RegistrationScreen';
-import BottomTabs from './BottomTabs'; // Your tab navigator
+import BottomTabs from './BottomTabs';
 import ProfileScreen from '../screens/ProfileScreen';
 import EventDetailsScreen from '../screens/EventDetailsScreen';
 

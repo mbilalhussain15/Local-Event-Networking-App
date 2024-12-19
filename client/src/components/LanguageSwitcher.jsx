@@ -6,7 +6,6 @@ import { UserContext } from '../context/UserContext';
 const LanguageSwitcher = () => {
   const { user, setUser } = useContext(UserContext);
 
-  // Function to normalize language values from 'english' or 'german' to 'en' or 'de'
   const normalizeLanguage = (lang) => {
     if (lang) {
       if (lang.toLowerCase() === 'english') {
@@ -15,19 +14,17 @@ const LanguageSwitcher = () => {
         return 'de';
       }
     }
-    return null; // If language is neither 'english' nor 'german', return null
+    return null;
   };
 
-  // Initialize the state based on user language, default to English or German if undefined or null
   const [selectedLanguage, setSelectedLanguage] = useState(() => {
     const userLang = user?.user?.language;
-    const normalizedLang = normalizeLanguage(userLang); // Normalize the language
+    const normalizedLang = normalizeLanguage(userLang);
 
     if (normalizedLang) {
       return normalizedLang === 'en' ? 'English' : 'German';
     }
 
-    // Fallback to i18n current language (either 'en' or 'de')
     return i18n.language === 'en' ? 'English' : 'German';
   });
 
@@ -38,16 +35,13 @@ const LanguageSwitcher = () => {
   };
 
   const changeLanguage = (lang) => {
-    // Change the language in i18n
     i18n.changeLanguage(lang);
 
-    // Update the selected language text
     const newLanguage = lang === 'en' ? 'English' : 'German';
     setSelectedLanguage(newLanguage);
 
-    // Optionally update the user context if needed (e.g., store language choice in backend or local storage)
     if (user?.user) {
-      const updatedUser = { ...user, user: { ...user.user, language: lang === 'en' ? 'english' : 'german' } }; // Store as 'english' or 'german'
+      const updatedUser = { ...user, user: { ...user.user, language: lang === 'en' ? 'english' : 'german' } };
       setUser(updatedUser);
     }
 
@@ -55,9 +49,8 @@ const LanguageSwitcher = () => {
   };
 
   useEffect(() => {
-    // If the user language is set (e.g., from DB), update i18n language on mount
     const userLang = user?.user?.language;
-    const normalizedLang = normalizeLanguage(userLang); // Normalize the language
+    const normalizedLang = normalizeLanguage(userLang);
     if (normalizedLang) {
       i18n.changeLanguage(normalizedLang);
     }
@@ -86,8 +79,8 @@ const LanguageSwitcher = () => {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    right: 20,  // Position language switcher at the right side
-    top: 20,    // Adjust top spacing if needed
+    right: 20,  
+    top: 20,    
     zIndex: 1000,
   },
   button: {

@@ -15,18 +15,11 @@ const Header = () => {
 
   return (
     <View style={styles.header}>
-      {/* Hamburger Icon */}
       <TouchableOpacity onPress={toggleDrawer} style={styles.leftIcon}>
         <Icon name="menu" size={28} color="#FFFFFF" />
       </TouchableOpacity>
-
-      {/* Centered Title */}
       <Text style={styles.title}>{t('header.home')}</Text>
-
-      {/* Drawer */}
       <HomeDrawer isVisible={isDrawerOpen} closeDrawer={toggleDrawer} />
-
-      {/* Language Switcher */}
       <LanguageSwitcher />
     </View>
   );
@@ -40,7 +33,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 30,
     flexDirection: 'row',
     alignItems: 'center',
-    position: 'relative', // Ensure the parent container has relative positioning
+    position: 'relative',
   },
   leftIcon: {
     position: 'absolute',
@@ -52,7 +45,7 @@ const styles = StyleSheet.create({
     fontSize: 25,
     fontWeight: 'bold',
     textAlign: 'center',
-    flex: 1, // Ensures the title stays centered
+    flex: 1, 
   },
 });
 

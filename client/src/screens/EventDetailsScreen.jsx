@@ -15,11 +15,10 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import PaymentPopup from '../components/PaymentPopup';
 import { useGetUserByIdQuery } from '../redux/slices/api/authApiSlice';
 import { useGetEventByIdQuery } from '../redux/slices/api/eventApiSlice';
-import { useTranslation } from 'react-i18next';  // Import the translation hook
+import { useTranslation } from 'react-i18next';  
 import { UserContext } from '../context/UserContext';
 import Tts from 'react-native-tts';
 
-// Helper function to get the device IP address
 const getDeviceIp = async () => {
   try {
     const ip = await DeviceInfo.getIpAddress();
@@ -29,7 +28,6 @@ const getDeviceIp = async () => {
   }
 };
 
-// Helper function to update the image URL based on platform (Android/iOS)
 const updateImageUrlForPlatform = async (url) => {
   if (!url) return null;
 
@@ -66,7 +64,7 @@ const EventDetailsScreen = ({ route, navigation }) => {
   };
 
   const handleSpeak = (text) => {
-    Tts.stop(); // Stop any ongoing speech
+    Tts.stop();
     Tts.speak(text, { androidParams: { KEY_PARAM_VOLUME: 1.0 } });
   };
 
@@ -74,18 +72,16 @@ const EventDetailsScreen = ({ route, navigation }) => {
     Tts.stop();
   };
 
-  const { t } = useTranslation();  // Use translation hook
+  const { t } = useTranslation();
   const { eventId } = route.params;
 
-  const { user } = useContext(UserContext); // Access user data from context
+  const { user } = useContext(UserContext);
   const userId = user?.user?._id;
 
-  // Fetch event details
   const { data: event, isLoading: eventLoading, isError: eventError } = useGetEventByIdQuery(eventId);
 
-  // Fetch user details
   const { data: userDetails, isLoading: userLoading, isError: userError } = useGetUserByIdQuery(userId, {
-    skip: !userId, // Skip fetching if userId is not available
+    skip: !userId, 
   });
 
   const [eventDate, setEventDate] = useState('');
@@ -101,7 +97,6 @@ const EventDetailsScreen = ({ route, navigation }) => {
   const [updatedUser, setUpdatedUser] = useState(user);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
 
-  // Update event and user image URL on component mount or when event/user changes
   useEffect(() => {
     if (event?.date) {
       const eventDateObj = new Date(event.date);
@@ -118,7 +113,6 @@ const EventDetailsScreen = ({ route, navigation }) => {
         country: country || '',
       });
     }
-    // Update event image URL if exists
     const updateEventImage = async () => {
       if (event?.eventImage) {
         const updatedImageUrl = await updateImageUrlForPlatform(event.eventImage);
@@ -128,8 +122,6 @@ const EventDetailsScreen = ({ route, navigation }) => {
         }));
       }
     };
-
-    // Update user profile image URL if exists
     const updateUserImage = async () => {
       if (user?.user?.profileImage) {
         const updatedImageUrl = await updateImageUrlForPlatform(user?.user?.profileImage);
@@ -163,7 +155,6 @@ const EventDetailsScreen = ({ route, navigation }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-      {/* Back Button */}
       <TouchableOpacity
         style={styles.backButton}
         onPress={() => navigation.goBack()}
@@ -171,17 +162,14 @@ const EventDetailsScreen = ({ route, navigation }) => {
         <Icon name="arrow-back" size={24} color="#5C3BE7" />
       </TouchableOpacity>
 
-      {/* Event Header Image */}
       <Image
         source={updatedEvent?.eventImage ? { uri: updatedEvent?.eventImage } : require('../assets/eventsImages/event.jpg')}
         style={styles.headerImage}
       />
 
       <View style={styles.detailsContainer}>
-        {/* Event Name */}
         <Text style={styles.title}>{event.eventName}</Text>
 
-        {/* Event Date & Time */}
         <View style={styles.row}>
           <Icon name="calendar-outline" size={24} color="#5C3BE7" />
           <View style={styles.textContainer}>
@@ -190,7 +178,6 @@ const EventDetailsScreen = ({ route, navigation }) => {
           </View>
         </View>
 
-        {/* Event Location */}
         <View style={styles.row}>
           <Icon name="location-outline" size={24} color="#5C3BE7" />
           <View style={styles.textContainer}>
@@ -207,7 +194,6 @@ const EventDetailsScreen = ({ route, navigation }) => {
           </View>
         </View>
 
-        {/* User (Organizer) Details */}
         <View style={styles.row}>
           <Image
             source={updatedUser?.profileImage ? { uri: updatedUser?.profileImage } : require('../assets/eventsImages/event.jpg')}
@@ -231,7 +217,6 @@ const EventDetailsScreen = ({ route, navigation }) => {
         </View>
 
 
-        {/* About Event */}
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'between' }}>
           <Text style={styles.sectionTitle}>{t('About Event')}</Text>
           <TouchableOpacity style={{ marginLeft: 10, justifyContent: 'space-between' }} onPress={() => handleSpeak(event.description)}>
@@ -244,7 +229,6 @@ const EventDetailsScreen = ({ route, navigation }) => {
         <Text style={styles.description}>{event.description}</Text>
         </View>
 
-      {/* Buy Ticket Button */}
       <TouchableOpacity
         style={styles.button}
         onPress={() => setIsPopupVisible(true)}

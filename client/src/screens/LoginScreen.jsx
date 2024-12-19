@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   languageSwitcher: {
-    marginVertical: 15,  // Adjust vertical margin as needed
+    marginVertical: 15,
   },
   
 });

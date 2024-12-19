@@ -15,7 +15,6 @@ const EventList = ({ title }) => (
         attendees="+20 Going"
         location="36 Guild Street, London, UK"
       />
-      {/* Add more EventCards as needed */}
     </ScrollView>
   </View>
 );

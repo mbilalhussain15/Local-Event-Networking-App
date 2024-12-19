@@ -22,19 +22,15 @@ const ExploreScreen = () => {
   
   const userFetchedRef = useRef(false);
   
- // Trigger refetch when the screen comes into focus
  useFocusEffect(
   useCallback(() => {
-    // console.log('Home tab focused. Refetching events...');
-    refetchEvents(); // Re-fetch data when the tab is focused
+    refetchEvents();
     refetchUser();
   }, [refetchEvents, refetchUser])
 );
 
-// Handle refreshFlag for programmatic updates
 useEffect(() => {
   if (refreshFlag) {
-    // console.log('Refresh flag detected. Refetching events...');
     refetchEvents();
     refetchUser();
   }
@@ -57,7 +53,6 @@ useEffect(() => {
     Alert.alert('Text-to-Speech Activated');
   };
 
-  // Function to get device IP
   const getDeviceIp = async () => {
     try {
       const ip = await DeviceInfo.getIpAddress();
@@ -68,7 +63,6 @@ useEffect(() => {
     }
   };
 
-  // Function to update the image URL based on platform and IP
   const updateImageUrlForPlatform = async (url) => {
     if (!url) return null;
 
@@ -85,7 +79,6 @@ useEffect(() => {
       updatedUrl = url.replace('http://localhost', `http://${deviceIp}`);
     }
 
-    // Fallback if still pointing to localhost
     if (updatedUrl.includes('localhost')) {
       updatedUrl = url;
     }
@@ -93,7 +86,6 @@ useEffect(() => {
     return updatedUrl;
   };
 
-  // Handle events and update image URLs
   useEffect(() => {
     if (events && events.length > 0) {
       const updateEventImages = async () => {
@@ -110,7 +102,6 @@ useEffect(() => {
     }
   }, [events]);
 
-  // Loading state
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -120,7 +111,6 @@ useEffect(() => {
     );
   }
 
-  // Error state
   if (isError || !updatedEvents.length) {
     return (
       <View style={styles.errorContainer}>

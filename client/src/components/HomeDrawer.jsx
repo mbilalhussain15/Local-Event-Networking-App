@@ -83,12 +83,10 @@ const HomeDrawer = ({ isVisible, closeDrawer }) => {
         </TouchableOpacity>
       </View>
     </Modal>
-     {/* Change Password Modal */}
      <ChangePasswordModal
         isVisible={passwordModalVisible}
         closeModal={() => setPasswordModalVisible(false)}
       />
-    {/* Change Language Modal */}
     <ChangeLanguageModal
       isVisible={languageModalVisible}
       closeModal={() => setLanguageModalVisible(false)}

@@ -30,7 +30,7 @@ const ChangeLanguageModal = ({ isVisible, closeModal }) => {
     setIsLoading(true);
     try {
       await updateUserLanguage({ userId, language: selectedLanguage }).unwrap();
-      Alert.alert(t('Success'), t('Language updated successfully.'));
+      Alert.alert(t('Success'), t('Language updated successfully. Please Login again to see changes.'));
     } catch (error) {
       Alert.alert(t('Error'), t('Failed to update language.'));
     } finally {

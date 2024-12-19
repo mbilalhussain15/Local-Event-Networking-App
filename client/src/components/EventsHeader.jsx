@@ -12,18 +12,11 @@ const EventsHeader = ({title}) => {
 
   return (
     <View style={styles.header}>
-      {/* Hamburger Icon */}
       <TouchableOpacity onPress={toggleDrawer} style={styles.leftIcon}>
         <Icon name="menu" size={28} color="#FFFFFF" />
       </TouchableOpacity>
-
-      {/* Centered Title */}
       <Text style={styles.title}>{title}</Text>
-
-      {/* Placeholder for right alignment (if needed in future) */}
       <View style={styles.rightPlaceholder}></View>
-
-      {/* Drawer */}
       <HomeDrawer isVisible={isDrawerOpen} closeDrawer={toggleDrawer} />
     </View>
   );
@@ -37,7 +30,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 30,
     flexDirection: 'row',
     alignItems: 'center',
-    position: 'relative', // Allows absolute positioning of the title
+    position: 'relative',
   },
   leftIcon: {
     position: 'absolute',

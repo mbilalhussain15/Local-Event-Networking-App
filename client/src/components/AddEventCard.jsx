@@ -88,14 +88,7 @@ const AddEventCard = () => {
     Alert.alert('Validation Error','Please fill all required fields correctly.');
     return;
   }
-  // if (Object.keys(validationErrors).length > 0) {
-  //   setErrors(validationErrors);
-  //   const errorMessage = Object.values(validationErrors).join(' ') || 'Please fill all required fields correctly.';
-    
-  //   Alert.alert('Validation Error', errorMessage);
-  //   return;
-  // }
-
+  
     const newEvent = {
       user_id: user_Id,
       eventName,

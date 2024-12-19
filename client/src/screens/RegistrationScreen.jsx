@@ -78,7 +78,6 @@ const RegistrationScreen = ({ navigation }) => {
         <LanguageSwitcher />
         <Text style={styles.title}>{t('register.title')}</Text>
 
-        {/* First Name Input */}
         <TextInput
           style={[styles.input, errors.firstName && styles.errorInput]}
           placeholder={t('register.firstName')}
@@ -92,7 +91,6 @@ const RegistrationScreen = ({ navigation }) => {
         />
         {errors.firstName && <Text style={styles.errorText}>{errors.firstName}</Text>}
 
-        {/* Last Name Input */}
         <TextInput
           style={[styles.input, errors.lastName && styles.errorInput]}
           placeholder={t('register.lastName')}
@@ -106,7 +104,6 @@ const RegistrationScreen = ({ navigation }) => {
         />
         {errors.lastName && <Text style={styles.errorText}>{errors.lastName}</Text>}
 
-        {/* Email Input */}
         <TextInput
           style={[styles.input, errors.email && styles.errorInput]}
           placeholder={t('register.email')}
@@ -121,7 +118,6 @@ const RegistrationScreen = ({ navigation }) => {
         />
         {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
 
-        {/* Password Input */}
         <TextInput
           style={[styles.input, errors.password && styles.errorInput]}
           placeholder={t('register.password')}
@@ -136,7 +132,6 @@ const RegistrationScreen = ({ navigation }) => {
         />
         {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
 
-        {/* Confirm Password Input */}
         <TextInput
           style={[styles.input, errors.confirmPassword && styles.errorInput]}
           placeholder={t('register.confirmPassword')}
@@ -151,7 +146,6 @@ const RegistrationScreen = ({ navigation }) => {
         />
         {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
 
-        {/* Submit Button */}
         <TouchableOpacity
           style={[styles.button, isLoading && { backgroundColor: '#A2A2A2' }]}
           onPress={handleSubmit}
@@ -162,7 +156,6 @@ const RegistrationScreen = ({ navigation }) => {
           </Text>
         </TouchableOpacity>
 
-        {/* Navigation to Login Screen */}
         <TouchableOpacity onPress={() => navigation.navigate("Login")}>
           <Text style={styles.signInText}>{t('register.alreadyHaveAccount')}</Text>
         </TouchableOpacity>
@@ -223,7 +216,7 @@ const styles = StyleSheet.create({
   errorText: {
     color: 'red',
     fontSize: 12,
-    alignSelf: 'flex-start', // Align error text to the left
+    alignSelf: 'flex-start',
     marginBottom: 10,
   },
 });

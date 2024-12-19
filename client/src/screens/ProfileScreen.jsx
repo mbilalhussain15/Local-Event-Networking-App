@@ -34,7 +34,7 @@ const ProfileScreen = ({ navigation }) => {
   useEffect(() => {
     const updateProfileInStorage = async () => {
       if (user) {
-        await AsyncStorage.setItem('user', JSON.stringify(user)); // Save the updated user
+        await AsyncStorage.setItem('user', JSON.stringify(user));
       }
     };
 
@@ -174,13 +174,12 @@ useEffect(() => {
 
   useEffect(() => {
     if (isEditModalVisible) {
-      // Initialize the updatedProfile.profileImage with profile's image or default value
       setUpdatedProfile((prevState) => ({
         ...prevState,
-        profileImage: profile.profileImage || null, // If no profile image, set null
+        profileImage: profile.profileImage || null,
       }));
     }
-  }, [isEditModalVisible]); // This effect triggers when modal visibility changes
+  }, [isEditModalVisible]);
   return (
     <View style={styles.container}>
       <View style={styles.header}>

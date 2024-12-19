@@ -23,7 +23,8 @@ const MapScreen = () => {
       if (events && events.length > 0) {
         const locations = [];
         for (let event of events) {
-          const address = `${event.location.streetAddress}, ${event.location.postalCode} ${event.location.city}, ${event.location.country}`;
+          const address = `${event.location.streetAddress}, ${event.location.postalCode} ${event.location.city}, ${event.location.country}`;    
+            console.log('adress:', adress)
 
           try {
             const response = await axios.get(
@@ -31,7 +32,7 @@ const MapScreen = () => {
             );
 
             if (response.data.status === 'OK') {
-              const location = response.data.results[0].geometry.location;
+              const location = response.data.results[0].geometry.location
               locations.push({
                 latitude: location.lat,
                 longitude: location.lng,
